@@ -8,21 +8,21 @@
 
 ## Platforms and Languages Leveraged
 
-    **Platforms:**
+**Platforms:**
 
-    * Microsoft Defender for Endpoint (MDE)
-    * Log Analytics Workspace
-    * Windows 11-Based System
+* Microsoft Defender for Endpoint (MDE)
+* Log Analytics Workspace
+* Windows 11-Based System
 
-    **Languages/Tools:**
+**Languages/Tools:**
 
-    * Kusto Query Language (KQL) for querying Device Logon Events, Device Process Events, and persistence artifacts
+* Kusto Query Language (KQL) for querying Device Logon Events, Device Process Events, and persistence artifacts
 
-    ---
+---
 
-    ## Scenario 
+## Scenario 
 
-    From: Hunt Lead // Cyber Range SOC
+From: Hunt Lead // Cyber Range SOC
 To: Threat Hunt // On-Shift
 Re: Nimbus Health // billing account posture review
 Your shift starts with a routine one. Nimbus Health, a small outpatient clinic we support, asked for a posture review after a billing account showed some odd activity. The paperwork calls it a stale-access housekeeping check. Read it as an investigation anyway, and let the telemetry decide what it actually is.
