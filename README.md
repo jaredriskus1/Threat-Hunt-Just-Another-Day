@@ -674,4 +674,14 @@ The investigation confirmed that the attacker executed whoami /groups to enumera
 ### Query 
 
    ```kql
-   
+DeviceProcessEvents
+| where DeviceName startswith "nh-"
+| where AccountName == "j.morris"
+| where TimeGenerated between (datetime(2026-03-01) .. datetime(2026-03-30))
+| where ProcessCommandLine has_any ("net", "whoami", "hostname", "nslookup", "nltest")
+| project TimeGenerated, AccountName, DeviceName, ActionType, ProcessCommandLine
+```
+
+[Query Eight](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag%208.png)
+
+---
