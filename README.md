@@ -1028,4 +1028,8 @@ DeviceProcessEvents
 | project TimeGenerated, AccountName, DeviceName, ActionType, ProcessCommandLine
 ```
 
-![Query Twelve]()
+![Query Twelve](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag%2012.png)
+
+---
+
+##
