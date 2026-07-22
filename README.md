@@ -1354,4 +1354,6 @@ DeviceProcessEvents
 | where ProcessCommandLine contains "whoami"
 | project TimeGenerated, AccountName, DeviceName, ActionType, ProcessCommandLine
 ```
-![Query Sixteen]()
+![Query Sixteen](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag%2016.png)
+
+---
