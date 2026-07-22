@@ -50,7 +50,7 @@ Get hunting.
 
 ---
 
-## Flag 1 — Identification of the Compromised Account
+## Finding 1 — Identification of the Compromised Account
 
 ### Hunt Lead
 
@@ -107,7 +107,7 @@ DeviceLogonEvents
 
 ---
 
-## Flag 2 - Interactive Remote Access Established
+## Finding 2 - Interactive Remote Access Established
 
 ### Hunt Lead
 
@@ -188,7 +188,7 @@ The investigation confirmed that the compromised j.morris account established Re
 
 ---
 
-## Flag 3 – External Source of Remote Access Identified
+## Finding 3 – External Source of Remote Access Identified
 
 ### Hunt Lead
 
@@ -270,7 +270,7 @@ DeviceLogonEvents
 
 ---
 
-## Flag 4 – Analysis of Initial Command-Line Activity
+## Finding 4 – Analysis of Initial Command-Line Activity
 
 ### Hunt Lead
 
@@ -346,7 +346,7 @@ DeviceProcessEvents
 
 ---
 
-## Flag 5 – Initial Host and Network Reconnaissance
+## Finding 5 – Initial Host and Network Reconnaissance
 
 ### Hunt Lead
 
@@ -432,3 +432,88 @@ DeviceProcessEvents
 
 ---
 
+## Finding 6 – Targeted File Server Reconnaissance
+
+### Hunt Lead
+
+"The recon wasn't aimless. The last discovery command names one system specifically. Which server were they lining up?"
+
+### Objective
+
+Determine whether the attacker transitioned from general host reconnaissance to identifying a specific network resource for further investigation and potential data access.
+
+### Investigation
+
+Following the initial reconnaissance sequence documented in Finding 5, the investigation focused on the final command executed during the attacker's discovery phase. Review of DeviceProcessEvents revealed that the attacker executed a targeted network enumeration command against the server NH-FS-01.
+
+Unlike the previous commands (whoami, hostname, and net use), which gathered information about the compromised workstation and user context, the command:
+
+net view \\NH-FS-01
+
+explicitly targeted a known file server within the Nimbus Healthcare environment. This command requests a list of shared resources hosted by the specified system, allowing the attacker to identify directories that may contain valuable organizational data.
+
+The progression from local host discovery to a specific network resource indicates that the attacker had completed their initial situational awareness and was beginning to identify high-value systems for follow-on activity.
+
+### Evidence
+
+* Artifact	Value
+* Account	j.morris
+* Log Source	DeviceProcessEvents
+* Command	net view \\NH-FS-01
+* Target System	NH-FS-01
+* Activity	Network Share Enumeration
+
+### Analysis
+
+This finding represents the first indication that the attacker had identified a specific objective within the environment.
+
+Rather than broadly scanning the network, the attacker directly queried NH-FS-01, suggesting they either had prior knowledge of the environment or had already identified the file server as a likely repository for business-critical information. This targeted approach reduced unnecessary network activity while enabling the attacker to efficiently locate accessible file shares.
+
+The transition from generic host discovery to focused server reconnaissance illustrates a common progression observed during interactive intrusions:
+
+* Establish access to the compromised workstation.
+* Identify the current user and host.
+* Determine available network connections.
+* Identify high-value systems.
+* Enumerate available resources before attempting access.
+
+This behavior demonstrates deliberate planning rather than opportunistic exploration and sets the stage for the unauthorized access to billing and Human Resources data observed in later findings.
+
+### MITRE ATT&CK Mapping
+
+* Tactic	Technique	Rationale
+* Discovery	T1135 – Network Share Discovery	The attacker enumerated shared resources on a specific file server using native Windows commands.
+
+### Risk Assessment
+
+* Severity: High
+
+Targeted enumeration of enterprise file servers is a significant precursor to unauthorized data access. File servers often contain centralized repositories of sensitive information, making them high-value targets during post-compromise reconnaissance.
+
+Although this activity alone did not modify or exfiltrate data, it substantially increased the attacker's understanding of the environment and enabled subsequent access to restricted business resources.
+
+### Detection Opportunities
+
+Organizations can improve visibility into similar activity by:
+
+Monitoring execution of net view commands directed at critical file servers.
+Correlating file server enumeration immediately following RemoteInteractive logons.
+Alerting when non-administrative accounts enumerate enterprise file servers outside their normal responsibilities.
+Creating behavioral detections for users transitioning from workstation reconnaissance to server enumeration within a short time period.
+
+### Conclusion
+
+The investigation determined that the attacker deliberately targeted the NH-FS-01 file server during the reconnaissance phase of the intrusion. By executing net view \\NH-FS-01, the attacker identified shared resources available on the server and prepared for subsequent access to sensitive billing and Human Resources data. This activity represents the transition from general environmental discovery to focused reconnaissance against a high-value organizational asset and marks the beginning of the attacker's movement toward data collection objectives.
+
+### Query
+
+   ```kql
+DeviceProcessEvents
+| where DeviceName startswith "nh-"
+| where AccountName == "j.morris"
+| where TimeGenerated between (datetime(2026-03-01) .. datetime(2026-03-30))
+| where ProcessCommandLine has_any ("net", "whoami", "hostname", "nslookup", "nltest")
+| project TimeGenerated, AccountName, DeviceName, ActionType, ProcessCommandLine
+```
+
+![Query Six]()
