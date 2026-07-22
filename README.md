@@ -1,6 +1,6 @@
 ## Threat-Hunt-Just-Another-Day
 
-![image](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/JustAnotherDay.png)
+![image](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Just_Another_Day.png)
 
 **Participant:** Jared Riskus
 
