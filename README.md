@@ -601,3 +601,77 @@ DeviceProcessEvents
 ![Query Seven](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag%207.png)
 
 ---
+
+## Finding 8 – Privilege and Group Membership Enumeration
+
+### Hunt Lead
+
+"Knowing where to go isn't enough. Before touching sensitive data, the operator checks what the compromised account is allowed to do. Identify the command used to inspect account privileges."
+
+### Objective
+
+Determine whether the attacker evaluated the permissions associated with the compromised account and assess how this information could support subsequent phases of the intrusion.
+
+### Investigation
+
+Following enterprise-wide reconnaissance documented in Finding 7, the investigation continued by reviewing the next command executed by the compromised j.morris account. Analysis of DeviceProcessEvents identified execution of the following command:
+
+whoami /groups
+
+Unlike the earlier whoami command, which simply identifies the active user, the /groups switch provides detailed information about the security groups and security identifiers (SIDs) associated with the current logon session. This allows an attacker to determine what resources the compromised account may be authorized to access and whether additional privilege escalation is necessary.
+
+By examining group membership, the attacker could quickly identify whether the compromised account possessed elevated privileges or belonged to groups with access to sensitive file shares, departmental resources, or administrative functions.
+
+### Evidence
+
+* Artifact	Value
+* Account	j.morris
+* Log Source	DeviceProcessEvents
+* Command	whoami /groups
+* Activity	Security Group Enumeration
+* Purpose	Determine effective permissions and group memberships
+
+### Analysis
+
+The execution of whoami /groups demonstrates that the attacker was validating the capabilities of the compromised account before proceeding further into the environment.
+
+This represents a deliberate progression in the attack lifecycle:
+
+Identify the current user (whoami)
+Identify the compromised system (hostname)
+Discover accessible network resources (net use)
+Enumerate enterprise systems (net view)
+Determine effective permissions (whoami /groups)
+
+Rather than attempting privileged actions blindly, the attacker first established exactly what access was already available through the compromised credentials. This approach minimizes unnecessary activity and allows the attacker to tailor subsequent actions to the permissions already granted to the account.
+
+The use of built-in Windows utilities also reflects a "living off the land" approach, relying on trusted operating system binaries that are commonly executed by legitimate users and administrators. While whoami /groups has legitimate administrative uses, its execution immediately after domain reconnaissance and immediately before sensitive resource access is consistent with manual attacker tradecraft.
+
+### MITRE ATT&CK Mapping
+
+* Tactic	Technique	Rationale
+* Discovery	T1069 – Permission Groups Discovery	The attacker enumerated security group memberships associated with the compromised account to understand available permissions.
+
+### Risk Assessment
+
+* Severity: Medium–High
+
+Permission enumeration enables an attacker to understand the scope of access already available through compromised credentials. This information reduces trial-and-error during the intrusion and helps identify which systems and data repositories can be accessed without triggering additional authentication or privilege escalation attempts.
+
+### Detection Opportunities
+
+Organizations can improve visibility into similar activity by:
+
+Monitoring execution of whoami /groups following remote interactive logons.
+Correlating permission enumeration with recent reconnaissance commands such as net.exe view or hostname.
+Creating behavioral detections for users executing multiple discovery commands within a short timeframe.
+Establishing baselines for administrative utilities executed by non-administrative users and investigating deviations.
+
+### Conclusion
+
+The investigation confirmed that the attacker executed whoami /groups to enumerate the security groups associated with the compromised j.morris account. This activity provided insight into the permissions already available to the attacker and informed subsequent decisions regarding resource access. Combined with the preceding reconnaissance activity, this finding further demonstrates a deliberate, hands-on approach to post-compromise operations and reflects a methodical progression through the Discovery phase of the intrusion.
+
+### Query 
+
+   ```kql
+   
