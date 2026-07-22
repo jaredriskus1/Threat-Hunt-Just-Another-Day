@@ -104,7 +104,7 @@ DeviceLogonEvents
 
 ---
 
-## Flag 2 
+## Flag 2 - Interactive Remote Access Established
 ### Hunt Lead
 
 "This account isn't being used by someone sitting at the billing desk. Its successful sessions are a different kind of logon entirely. Give me the logon type."
