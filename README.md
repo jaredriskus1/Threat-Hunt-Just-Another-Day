@@ -1109,3 +1109,78 @@ DeviceProcessEvents
 
 ---
 
+## Finding 14 – Lateral Movement to an Additional Workstation
+Hunt Lead
+
+"The attacker wasn't finished with the original workstation. Identify the additional system they authenticated to and determine whether any meaningful activity followed."
+
+Objective
+
+Determine whether the attacker expanded their presence beyond the initially compromised workstation and assess the significance of authentication activity observed on additional systems.
+
+Investigation
+
+Following the discovery of unauthorized access to billing, payroll, and Human Resources documentation, the investigation expanded to determine whether the compromised j.morris account had been used to access additional systems within the environment.
+
+Review of authentication telemetry identified a successful logon to the workstation:
+
+NH-WKS-IT-01
+
+This authentication occurred after the attacker had completed reconnaissance and data access activities associated with the initial compromise. To determine whether the attacker actively utilized the workstation, DeviceProcessEvents were reviewed for command execution, process creation, and other evidence of interactive activity following the successful logon.
+
+The investigation did not identify meaningful follow-on process activity associated with the authenticated session. No reconnaissance commands, file access, privilege enumeration, or evidence of persistence were observed on NH-WKS-IT-01 within the available telemetry.
+
+Evidence
+Artifact	Value
+Account	j.morris
+System Accessed	NH-WKS-IT-01
+Activity	Successful Authentication
+Follow-on Activity	None Observed
+Analysis
+
+The authentication to NH-WKS-IT-01 represents the first observed expansion of the intrusion beyond the original host. While the available evidence confirms that the attacker successfully authenticated to the workstation, it does not demonstrate that they conducted additional operations after gaining access.
+
+This distinction is important from an investigative perspective.
+
+Successful authentication alone confirms that the compromised credentials were used to reach another endpoint, but without supporting telemetry showing command execution, file access, or other post-authentication behavior, the investigation cannot conclude that the workstation was actively exploited.
+
+Several explanations remain possible based on the available evidence:
+
+The attacker authenticated to verify access but chose not to continue activity.
+The workstation did not provide information or resources aligned with the attacker's objectives.
+Relevant activity may have occurred outside the available telemetry collected during the investigation.
+
+Rather than assuming malicious actions occurred after authentication, the investigation is limited to what the evidence supports: successful access to an additional workstation with no confirmed post-authentication activity.
+
+MITRE ATT&CK Mapping
+Tactic	Technique	Rationale
+Lateral Movement	T1021 – Remote Services	The compromised account was used to authenticate to an additional system within the environment.
+Risk Assessment
+
+Severity: Medium
+
+Although no malicious activity was observed after authentication, lateral movement to another workstation demonstrates that the attacker was capable of extending their reach beyond the initial host. Even unsuccessful or abandoned attempts provide valuable insight into attacker behavior and should be investigated to determine whether additional systems were targeted.
+
+Detection Opportunities
+
+Organizations can improve visibility into similar activity by:
+
+Monitoring user accounts that authenticate to systems outside their normal administrative or business responsibilities.
+Correlating successful authentication events with the absence of normal user activity to identify potentially exploratory access.
+Alerting when accounts transition between multiple hosts within a short period following suspicious authentication events.
+Reviewing endpoint telemetry for systems that receive unexpected interactive logons, even when no follow-on process activity is observed.
+Conclusion
+
+The investigation confirmed that the compromised j.morris account successfully authenticated to NH-WKS-IT-01, representing the first confirmed expansion of the intrusion beyond the initially compromised system. However, review of the available endpoint telemetry did not identify meaningful post-authentication activity on the workstation. While this finding demonstrates attempted lateral movement using valid credentials, the available evidence does not support concluding that the attacker actively utilized or compromised NH-WKS-IT-01 beyond the successful logon.
+
+## Query 
+   ```kql
+DeviceLogonEvents
+| where DeviceName startswith "nh-"
+| where TimeGenerated between (datetime(2026-03-01) .. datetime(2026-03-30))
+| where AccountName == "j.morris"
+| where ActionType == "LogonSuccess"
+| order by TimeGenerated desc 
+| project TimeGenerated, AccountName, ActionType, AccountDomain, DeviceName
+
+![Query Fourteen]()
