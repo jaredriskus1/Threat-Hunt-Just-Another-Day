@@ -1182,5 +1182,8 @@ DeviceLogonEvents
 | where ActionType == "LogonSuccess"
 | order by TimeGenerated desc 
 | project TimeGenerated, AccountName, ActionType, AccountDomain, DeviceName
+```
 
-![Query Fourteen]()
+![Query Fourteen](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag%2014.png)
+
+---
