@@ -270,7 +270,7 @@ DeviceLogonEvents
 
 ---
 
-## Finding 4 – Analysis of Initial Command-Line Activity
+## Flag 4 – Analysis of Initial Command-Line Activity
 
 ### Hunt Lead
 
@@ -343,3 +343,89 @@ DeviceProcessEvents
 ```
 
 ![Fourth Query](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag%204%20.png)
+
+---
+
+## Flag 5 – Initial Host and Network Reconnaissance
+
+### Hunt Lead
+
+"Past the noise, the account's operator runs a short, deliberate burst of native commands to get their bearings. Give me that sequence, in order."
+
+### Objective
+
+Identify the first deliberate command-line activity performed by the compromised account and determine what information the attacker was attempting to gather immediately after establishing remote access.
+
+### Investigation
+
+After excluding the earlier rmdir activity as benign environmental noise, the investigation continued by reviewing the chronological sequence of process execution associated with the compromised j.morris account. The next series of commands marked a clear shift from unrelated system activity to deliberate attacker reconnaissance.
+
+The following native Windows commands were executed in rapid succession:
+
+* whoami
+* hostname
+* net use
+* net view \\NH-FS-01
+
+This sequence demonstrates a structured approach to environmental discovery rather than random command execution. Each command builds upon the information obtained from the previous one, allowing the attacker to progressively understand the compromised system and identify accessible network resources.
+
+### Evidence
+
+#### Order	Command	Purpose
+
+* 1	whoami	Identify the current security context and logged-on account.
+* 2	hostname	Identify the name of the compromised workstation.
+* 3	net use	Enumerate mapped network drives and existing network connections.
+* 4	net view \\NH-FS-01	Enumerate resources shared by the targeted file server.
+
+### Analysis
+
+The observed command sequence reflects a disciplined reconnaissance workflow commonly associated with hands-on-keyboard intrusions. Rather than immediately attempting privilege escalation or data collection, the attacker first established situational awareness by identifying the current user context, confirming the compromised host, and determining which network resources were available.
+
+The progression of commands is significant:
+
+whoami confirmed the privileges and identity associated with the compromised account.
+hostname identified the workstation from which the attacker was operating, helping correlate their position within the enterprise.
+net use provided visibility into mapped drives and active network connections that could expose accessible file shares.
+net view \\NH-FS-01 shifted the focus from the local workstation to a specific file server, indicating that the attacker had already identified a potentially valuable target for further investigation.
+
+The deliberate order of execution suggests that the attacker was systematically preparing for the next phase of the intrusion. Rather than conducting broad, noisy scanning, the reconnaissance remained focused and leveraged trusted Windows utilities that are commonly present on enterprise systems.
+
+### MITRE ATT&CK Mapping
+
+* Tactic	Technique	Rationale
+* Discovery	T1033 – System Owner/User Discovery	whoami identified the security context of the compromised account.
+* Discovery	T1082 – System Information Discovery	hostname identified the compromised system.
+* Discovery	T1135 – Network Share Discovery	net use and net view were used to identify accessible network resources and shared file locations.
+
+### Risk Assessment
+
+* Severity: High
+
+Although no data was accessed during this phase, successful reconnaissance significantly increases an attacker's ability to navigate the environment efficiently. By collecting information about user context, host identity, and available network resources, the attacker reduced uncertainty and positioned themselves for targeted lateral movement and unauthorized data access.
+
+### Detection Opportunities
+
+The following detection opportunities could improve visibility into similar reconnaissance activity:
+
+Alert on execution of whoami, hostname, net use, and net view by non-administrative users following remote interactive logons.
+Correlate multiple reconnaissance commands executed within a short time window by the same account.
+Monitor for net view targeting file servers containing sensitive business data.
+Create behavioral analytics that identify unusual command sequences immediately following successful remote authentication.
+
+### Conclusion
+
+Following successful remote access, the attacker executed a concise sequence of native Windows reconnaissance commands to establish situational awareness within the environment. By identifying the active user context, confirming the compromised workstation, enumerating network connections, and targeting the NH-FS-01 file server, the attacker laid the groundwork for subsequent network discovery and unauthorized access to sensitive resources. This sequence represents the beginning of the Discovery phase of the intrusion and demonstrates a deliberate, hands-on approach to navigating the environment.
+
+### Query 
+
+   ```kql
+DeviceProcessEvents
+| where DeviceName startswith "nh-"
+| where AccountName == "j.morris"
+| where TimeGenerated between (datetime(2026-03-01) .. datetime(2026-03-30))
+| where ProcessCommandLine has_any ("net", "whoami", "hostname", "nslookup", "nltest")
+| project TimeGenerated, AccountName, DeviceName, ActionType, ProcessCommandLine
+```
+
+![Query Five](
