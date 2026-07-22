@@ -1032,4 +1032,77 @@ DeviceProcessEvents
 
 ---
 
-##
+## Finding 13 – Access to Human Resources Documentation
+
+### Hunt Lead
+
+"The attacker's focus continues to expand beyond billing operations. Identify the Human Resources document that was accessed and assess what this reveals about the attacker's objectives."
+
+### Objective
+
+Determine whether the compromised account accessed Human Resources documentation and evaluate how this activity affected the scope of the investigation.
+
+### Investigation
+
+Following the access to payroll-related documentation identified in Finding 12, the investigation continued by reviewing additional file activity performed under the compromised j.morris account.
+
+Analysis of the available telemetry identified access to the following document:
+
+quarterly_awards_shortlist_20260310.txt
+
+The filename indicates that the document is associated with a quarterly employee awards process. While the available evidence identifies the filename, it does not describe the document's contents or confirm whether it was stored within a dedicated Human Resources directory. The assessment is therefore based on the filename and the investigative context provided by the source material.
+
+The access occurred after the attacker had already reviewed billing records, billing workflow documentation, and payroll-related information, demonstrating a continued expansion into organizational records beyond routine billing operations.
+
+### Evidence
+
+* Artifact	Value
+* Account	j.morris
+* File Accessed	quarterly_awards_shortlist_20260310.txt
+* Category	Human Resources Documentation
+* Activity	HR-Related File Access
+* Analysis
+
+This finding represents another escalation in the scope of the intrusion.
+
+Earlier findings showed the attacker progressing from environmental reconnaissance to accessing billing records and payroll documentation. The subsequent access to a Human Resources-related document indicates that the attacker broadened their interest to include employee information beyond the financial records initially targeted.
+
+From an investigative perspective, the significance lies less in the specific document itself and more in the widening pattern of access. Rather than remaining focused on a single department, the attacker was systematically exploring multiple categories of organizational information available through the compromised account.
+
+This progression suggests that the attacker was attempting to understand the organization's operations and identify potentially valuable information across different business functions. Although the available evidence confirms access to the document, it does not establish that the file was copied, modified, or exfiltrated.
+
+### MITRE ATT&CK Mapping
+
+* Tactic	Technique	Rationale
+* Collection	T1005 – Data from Local System	The attacker accessed an additional category of organizational data using the permissions of the compromised account.
+
+### Risk Assessment
+
+* Severity: High
+
+Unauthorized access to Human Resources documentation increases organizational risk because personnel-related records may contain information that supports additional social engineering, identity-based attacks, or intelligence gathering. Even without evidence of data theft, the observed access demonstrates that the attacker was systematically expanding the range of information reviewed during the intrusion.
+
+### Detection Opportunities
+
+Organizations can improve detection by:
+
+* Monitoring access to HR-related documents by users whose normal responsibilities do not involve personnel records.
+* Correlating HR document access with preceding reconnaissance and payroll-related activity.
+* Alerting when users rapidly transition between multiple sensitive business functions, such as Billing, Payroll, and Human Resources.
+* Implementing enhanced auditing for employee records and administrative documentation.
+
+### Conclusion
+
+The investigation confirmed that the compromised j.morris account accessed the Human Resources-related document quarterly_awards_shortlist_20260310.txt. This activity demonstrates a continued expansion of the attacker's objectives beyond billing operations into additional categories of organizational information. While the available evidence confirms unauthorized access to the document, it does not establish modification or exfiltration. Nevertheless, the pattern of activity indicates a deliberate effort to explore multiple business functions and reinforces the assessment of a structured, hands-on intrusion using valid credentials.
+
+### Query 
+
+   ```kql
+DeviceProcessEvents
+| where DeviceName startswith "nh-"
+| where TimeGenerated between (datetime(2026-03-01) .. datetime(2026-03-30))
+| where AccountName == "j.morris"
+| where ProcessCommandLine contains "hr" and ProcessCommandLine contains "txt"
+| project TimeGenerated, AccountName, DeviceName, ActionType, ProcessCommandLine
+```
+![Query Thirteen]()
