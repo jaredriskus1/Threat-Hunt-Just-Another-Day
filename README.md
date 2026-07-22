@@ -266,4 +266,4 @@ DeviceLogonEvents
 | where TimeGenerated between (datetime(2026-03-01) .. datetime(2026-03-30))
 | project TimeGenerated, AccountName, ActionType, LogonType, AccountDomain, RemoteIP
 ```
-![Third Query](
+![Third Query](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag%203%20.png)
