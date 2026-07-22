@@ -1187,3 +1187,84 @@ DeviceLogonEvents
 ![Query Fourteen](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag%2014.png)
 
 ---
+
+## Finding 15 – Lateral Movement to Human Resources Workstation
+
+### Hunt Lead
+
+"The first lateral movement produced little value. Continue tracing the compromised account to determine the next workstation the attacker accessed."
+
+### Objective
+
+Identify the next workstation accessed by the compromised j.morris account and determine whether the attacker's movement through the environment aligned with previously observed targeting of Human Resources-related information.
+
+### Investigation
+
+Following the authentication to NH-WKS-IT-01 documented in Finding 14, the investigation continued by reviewing additional authentication events associated with the compromised j.morris account.
+
+Analysis of DeviceLogonEvents identified a subsequent successful authentication to:
+
+NH-WKS-HR-02
+
+This authentication occurred after the attacker had already demonstrated interest in payroll and Human Resources documentation stored on NH-FS-01. The timing suggests the attacker continued expanding their access within the environment by pivoting toward a workstation associated with Human Resources operations.
+
+Unlike the previous lateral movement to NH-WKS-IT-01, this destination more closely aligns with the attacker's evolving objectives, which had shifted from financial records toward personnel-related information.
+
+### Evidence
+
+* Artifact	Value
+* Account	j.morris
+* Authentication Type	Successful Logon
+* Destination System	NH-WKS-HR-02
+* Activity	Lateral Movement
+
+### Analysis
+
+The authentication to NH-WKS-HR-02 represents a logical continuation of the attacker's progression through the environment.
+
+Earlier findings established the following sequence:
+
+* Reconnaissance of the compromised workstation
+* Discovery of enterprise file servers
+* Access to billing documentation
+* Access to payroll records
+* Access to Human Resources documents
+
+The move to an HR-designated workstation follows naturally from this progression. Rather than randomly authenticating to additional hosts, the attacker appears to have selected systems that were increasingly aligned with their apparent interest in personnel and administrative information.
+
+It is important to distinguish what the evidence confirms from what it does not. The available telemetry confirms that the attacker successfully authenticated to NH-WKS-HR-02. However, this finding alone does not establish what actions, if any, were performed after the logon. Those activities are examined in subsequent findings.
+
+### MITRE ATT&CK Mapping
+
+* Tactic	Technique	Rationale
+* Lateral Movement	T1021 – Remote Services	The compromised account was used to authenticate to another workstation within the enterprise.
+
+### Risk Assessment
+
+* Severity: High
+
+Movement to a workstation associated with Human Resources represents an escalation in organizational risk. HR systems frequently provide access to personnel records, compensation data, hiring information, and other sensitive business assets. Even without evidence of follow-on activity at this stage, the successful authentication demonstrates that the attacker expanded their reach into another high-value area of the environment.
+
+### Detection Opportunities
+
+Organizations can improve detection of similar activity by:
+
+* Monitoring user accounts authenticating to departmental workstations outside their normal business role.
+* Alerting when accounts rapidly authenticate to multiple systems following suspicious remote logons.
+* Correlating lateral movement with previous access to sensitive departmental file shares.
+* Building behavioral detections that identify users transitioning between unrelated departments (for example, Billing → IT → Human Resources) within a single session.
+
+### Conclusion
+
+The investigation confirmed that the compromised j.morris account successfully authenticated to NH-WKS-HR-02, marking a second instance of lateral movement within the environment. Unlike the previous authentication to NH-WKS-IT-01, this destination closely aligns with the attacker's demonstrated interest in payroll and Human Resources information. While this finding confirms expansion into another high-value workstation, the available evidence at this stage is limited to the successful authentication. The attacker's subsequent activity on NH-WKS-HR-02 is examined in the following findings.
+
+### Query 
+
+   ```kql
+DeviceProcessEvents
+| where AccountName == "j.morris"
+| where DeviceName contains "nh-wks-it-01"
+| where TimeGenerated between (datetime(2026-03-01) .. datetime(2026-03-30))
+```
+
+![Query Fifteen]()
