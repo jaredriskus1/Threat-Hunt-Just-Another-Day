@@ -597,6 +597,5 @@ DeviceProcessEvents
 | where ProcessCommandLine has_any ("net", "whoami", "hostname", "nslookup", "nltest")
 | project TimeGenerated, AccountName, DeviceName, ActionType, ProcessCommandLine
 
-![Query Seven](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag%207.png)
 
 ---
