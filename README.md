@@ -82,8 +82,8 @@ The combination of repeated failed authentication attempts followed by successfu
 
 ### MITRE ATT&CK
 
-*Tactic	Technique
-*Initial Access	T1078 – Valid Accounts
+Tactic	Technique
+Initial Access	T1078 – Valid Accounts
 
 ### Assessment
 
