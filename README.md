@@ -682,6 +682,6 @@ DeviceProcessEvents
 | project TimeGenerated, AccountName, DeviceName, ActionType, ProcessCommandLine
 ```
 
-[Query Eight](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag%208.png)
+![Query Eight](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag%208.png)
 
 ---
