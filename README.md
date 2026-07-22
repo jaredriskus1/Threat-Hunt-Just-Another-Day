@@ -180,3 +180,7 @@ The investigation confirmed that the compromised j.morris account established Re
 ```
 
 ![Second Query](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag2.png)
+
+---
+
+## Flag 3 – External Source of Remote Access Identified
