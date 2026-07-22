@@ -267,3 +267,66 @@ DeviceLogonEvents
 | project TimeGenerated, AccountName, ActionType, LogonType, AccountDomain, RemoteIP
 ```
 ![Third Query](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag%203%20.png)
+
+---
+
+## Finding 4 – Analysis of Initial Command-Line Activity
+
+### Hunt Lead
+
+"Sort the account's command-shell activity by time and the first thing you'll hit is a burst of deletions. Before you build a theory on it, tell me, is that the intruder, or is it noise? And say how you know."
+
+### Objective
+
+Analyze the earliest command-line activity associated with the compromised j.morris account to determine whether the observed deletion commands represented malicious attacker behavior or benign background activity.
+
+### Investigation
+
+Following confirmation that the j.morris account had been compromised, the investigation pivoted to DeviceProcessEvents to establish a chronological timeline of process execution. By sorting command-line activity in chronological order, the earliest commands associated with the compromised account were identified.
+
+The first notable activity consisted of multiple executions involving the rmdir command. Because directory deletion can be associated with attacker efforts to remove evidence or destroy data, these commands were initially treated as suspicious and examined in the context of surrounding activity.
+
+Further review of the process timeline did not indicate that the deletion commands targeted business documents, user profile data, payroll records, or other sensitive organizational assets. Instead, the activity appeared isolated and was not immediately followed by additional destructive behavior. Shortly afterward, the command history shifted to a deliberate sequence of reconnaissance commands—including whoami, hostname, and net utilities—that clearly marked the beginning of the attacker's interactive discovery phase.
+
+Based on the available evidence, the initial deletion activity was assessed as unrelated to the intrusion and treated as environmental noise rather than malicious attacker activity.
+
+### Evidence
+
+* Artifact	Value
+* Log Source	DeviceProcessEvents
+* Account	j.morris
+* Command Observed	rmdir
+* Activity	Directory deletion commands
+* Assessment	Benign background activity
+
+### Analysis
+
+One of the primary objectives during incident reconstruction is separating attacker actions from unrelated system activity. Although the rmdir command can be abused by attackers to delete files, remove staging directories, or eliminate forensic evidence, the evidence in this investigation does not support those conclusions.
+
+Instead, the observed deletion activity lacked characteristics commonly associated with malicious cleanup, such as deletion of sensitive files, log tampering, or removal of attacker-created artifacts. More importantly, the attacker's observable behavior began only after these commands, when the compromised account initiated structured reconnaissance using native Windows utilities.
+
+This distinction is important because attributing unrelated system activity to an attacker can lead to inaccurate timelines and incorrect conclusions. By identifying the rmdir executions as benign, the investigation maintained a more accurate reconstruction of the intrusion and ensured subsequent analysis focused on activity directly supporting the attack lifecycle.
+
+### MITRE ATT&CK Assessment
+
+* No MITRE ATT&CK technique was attributed to this finding.
+
+Although directory deletion can map to techniques involving artifact removal in other investigations, the available evidence does not support attributing these specific rmdir executions to malicious activity. Therefore, they were intentionally excluded from ATT&CK mapping to avoid overstating the evidence.
+
+### Risk Assessment
+
+* Severity: Informational
+
+The observed directory deletion commands were assessed as benign environmental activity and did not contribute to the attacker's objectives. Their significance lies in demonstrating the importance of validating suspicious events before incorporating them into the incident timeline.
+
+### Detection Opportunities
+
+Even though the activity was determined to be benign, similar commands can warrant investigation when accompanied by additional indicators of compromise. Detection opportunities include:
+
+Monitor for rmdir or del commands executed immediately after privilege escalation or data staging.
+Alert when directory deletion targets user profile directories, document repositories, or security log locations.
+Correlate deletion commands with subsequent log clearing or evidence of anti-forensic behavior.
+Review command execution in chronological context to distinguish legitimate maintenance activity from attacker actions.
+Conclusion
+
+The initial rmdir commands observed for the j.morris account were investigated because directory deletion can indicate attempts to destroy evidence or remove files during an intrusion. However, based on the available telemetry, the commands were not associated with destructive actions against sensitive organizational data and preceded the attacker's identifiable reconnaissance activity. As a result, they were assessed as benign environmental noise and excluded from the reconstructed attack timeline, allowing the investigation to focus on the confirmed malicious actions that followed.
