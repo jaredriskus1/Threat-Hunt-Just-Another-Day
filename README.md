@@ -1441,4 +1441,6 @@ The investigation confirmed that the compromised j.morris account accessed emplo
 | project TimeGenerated, AccountName, DeviceName, ActionType, ProcessCommandLine
 ```
 
-![Query Seventeen]()
+![Query Seventeen](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag%2017.png)
+
+---
