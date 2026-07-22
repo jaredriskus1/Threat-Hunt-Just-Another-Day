@@ -934,4 +934,6 @@ DeviceProcessEvents
 | where ProcessCommandLine contains "billing" and ProcessCommandLine contains "audit"
 | project TimeGenerated, AccountName, DeviceName, ActionType, ProcessCommandLine
 ```
-![Query 11]()
+![Query 11](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag%2011.png)
+
+---
