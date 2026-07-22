@@ -342,4 +342,4 @@ DeviceProcessEvents
 | project TimeGenerated, AccountName, ActionType, InitiatingProcessCommandLine, ProcessCommandLine
 ```
 
-![Fourth Query](
+![Fourth Query](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag%204%20.png)
