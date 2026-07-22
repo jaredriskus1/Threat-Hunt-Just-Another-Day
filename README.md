@@ -1357,3 +1357,88 @@ DeviceProcessEvents
 ![Query Sixteen](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag%2016.png)
 
 ---
+
+## Finding 17 – Access to Employee Compensation Records
+
+### Hunt Lead
+
+"The attacker remained in the Human Resources environment. Identify the next personnel-related file that was accessed and determine how it changes the scope of the compromise."
+
+### Objective
+
+Determine whether the attacker continued accessing sensitive Human Resources documentation after reviewing disciplinary records and assess the impact of expanding into employee compensation information.
+
+### Investigation
+
+Following the access to employee_disciplinary_actions_202603.pdf documented in Finding 16, the investigation continued by reviewing subsequent file activity associated with the compromised j.morris account on NH-WKS-HR-02.
+
+Analysis of the available telemetry identified access to the following file:
+
+employee_salary_adjustments_FY2026.xlsx
+
+The filename indicates that the workbook relates to employee salary adjustments for Fiscal Year 2026. While the filename strongly suggests compensation-related information, the source material does not describe the contents of the spreadsheet or indicate whether it contained employee salaries, proposed adjustments, or other HR data. The investigation therefore limits its conclusions to the confirmed access of the identified file.
+
+This activity occurred after the attacker had already accessed billing documentation, payroll records, employee recognition information, and disciplinary records, demonstrating a continued focus on sensitive personnel-related information.
+
+### Evidence
+
+* Artifact	Value
+* Account	j.morris
+* Workstation	NH-WKS-HR-02
+* File Accessed	employee_salary_adjustments_FY2026.xlsx
+* Category	Human Resources Documentation
+* Activity	Employee Compensation File Access
+
+### Analysis
+
+The access to employee_salary_adjustments_FY2026.xlsx represents another escalation in the attacker's collection activity.
+
+Rather than stopping after reviewing a single HR document, the attacker continued accessing additional records associated with employee administration. This progression indicates that the attacker was systematically reviewing multiple categories of Human Resources information instead of targeting a single document.
+
+Viewed across the investigation timeline, the attacker's behavior demonstrates a consistent pattern:
+
+* Financial documentation
+* Billing workflow records
+* Payroll information
+* Human Resources documentation
+* Employee disciplinary records
+* Employee compensation records
+
+This expanding scope suggests that the attacker was interested in gathering a broad range of organizational information available through the compromised credentials. Although the investigation confirms that the file was accessed, the available telemetry does not establish that it was modified, copied, or exfiltrated.
+
+### MITRE ATT&CK Mapping
+
+* Tactic	Technique	Rationale
+* Collection	T1005 – Data from Local System	The attacker accessed additional Human Resources documentation available through existing account permissions.
+
+### Risk Assessment
+
+* Severity: High
+
+Employee compensation information is typically considered highly sensitive organizational data. Unauthorized access to compensation-related records may expose confidential personnel information and can increase both organizational and privacy risks. While the available evidence confirms access rather than theft, the continued pattern of reviewing sensitive HR documents significantly broadens the scope of the compromise.
+
+### Detection Opportunities
+
+Organizations can improve visibility into similar activity by:
+
+* Monitoring access to compensation and salary-related documents outside normal HR workflows.
+* Correlating authentication events with access to multiple sensitive HR documents during the same session.
+* Alerting when users access compensation records inconsistent with their normal job responsibilities.
+* Applying enhanced auditing and behavioral monitoring to HR repositories containing confidential personnel information.
+
+### Conclusion
+
+The investigation confirmed that the compromised j.morris account accessed employee_salary_adjustments_FY2026.xlsx while operating on NH-WKS-HR-02. This finding demonstrates that the attacker continued expanding their access to sensitive Human Resources information after reviewing disciplinary records. Although the available evidence does not establish that the spreadsheet was modified or exfiltrated, the observed activity reinforces the assessment that the attacker was systematically collecting information across multiple categories of confidential organizational data.
+
+### Query
+   
+   ```kql
+   DeviceProcessEvents
+| where DeviceName contains "nh-fs-01"
+| where AccountName == "j.morris"
+| where TimeGenerated between (datetime(2026-03-01) .. datetime(2026-03-30))
+| where ProcessCommandLine has_any ("whoami", "net")
+| project TimeGenerated, AccountName, DeviceName, ActionType, ProcessCommandLine
+```
+
+![Query Seventeen]()
