@@ -82,8 +82,8 @@ The combination of repeated failed authentication attempts followed by successfu
 
 ### MITRE ATT&CK
 
-Tactic	Technique
-Initial Access	T1078 – Valid Accounts
+* Tactic	Technique
+* Initial Access	T1078 – Valid Accounts
 
 ### Assessment
 
@@ -129,12 +129,12 @@ The successful remote sessions also served as the starting point for the attacke
 
 ### Evidence
 
-*Artifact	Value
-*Account	j.morris
-*Log Source	DeviceLogonEvents
-*ActionType	LogonSuccess
-*Logon Type	RemoteInteractive
-*Investigation Window	March 1–30, 2026
+* Artifact	Value
+* Account	j.morris
+* Log Source	DeviceLogonEvents
+* ActionType	LogonSuccess
+* Logon Type	RemoteInteractive
+* Investigation Window	March 1–30, 2026
 
 ### Analysis
 
@@ -148,13 +148,13 @@ This finding also establishes the beginning of the attack lifecycle reconstructe
 
 ### MITRE ATT&CK Mapping
 
-*Tactic	Technique	Rationale
-*Initial Access	T1078 – Valid Accounts	The attacker authenticated using legitimate user credentials.
-*Lateral Movement	T1021 – Remote Services	The RemoteInteractive session indicates the use of remote access services to establish an interactive session.
+* Tactic	Technique	Rationale
+* Initial Access	T1078 – Valid Accounts	The attacker authenticated using legitimate user credentials.
+* Lateral Movement	T1021 – Remote Services	The RemoteInteractive session indicates the use of remote access services to establish an interactive session.
 
 ### Risk Assessment
 
-*Severity: High
+* Severity: High
 
 A successful RemoteInteractive logon using a compromised user account provides an attacker with the same capabilities as a legitimate user, allowing unrestricted interaction with the operating system within the permissions of that account. Because these sessions often resemble normal administrative activity, they can evade traditional signature-based detection if behavioral monitoring is not in place.
 
@@ -208,12 +208,12 @@ Because the successful remote sessions originated from an external address rathe
 
 ## Evidence
 
-*Artifact	Value
-*Account	j.morris
-*Log Source	DeviceLogonEvents
-*Logon Type	RemoteInteractive
-*Remote Source IP	193.36.225.245
-*Authentication	Successful Remote Logon
+* Artifact	Value
+* Account	j.morris
+* Log Source	DeviceLogonEvents
+* Logon Type	RemoteInteractive
+* Remote Source IP	193.36.225.245
+* Authentication	Successful Remote Logon
 
 ## Analysis
 
@@ -231,13 +231,13 @@ The attacker immediately began interactive reconnaissance using native Windows u
 This progression is consistent with an external actor gaining access through compromised credentials and beginning manual post-compromise operations.
 
 ### MITRE ATT&CK Mapping
-*Tactic	Technique	Rationale
-*Initial Access	T1078 – Valid Accounts	The attacker successfully authenticated using legitimate credentials.
-*Lateral Movement	T1021 – Remote Services	Remote interactive access was established from an external source.
+* Tactic	Technique	Rationale
+* Initial Access	T1078 – Valid Accounts	The attacker successfully authenticated using legitimate credentials.
+* Lateral Movement	T1021 – Remote Services	Remote interactive access was established from an external source.
 
 ### Risk Assessment
 
-*Severity: High
+* Severity: High
 
 Successful authentication from an external IP address using a compromised account presents a significant security risk because it provides an attacker with direct access to internal resources while appearing as a legitimate user. Without behavioral monitoring or conditional access controls, this type of activity can blend into normal authentication traffic and delay detection.
 
