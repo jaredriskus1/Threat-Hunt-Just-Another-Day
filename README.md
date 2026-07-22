@@ -50,4 +50,56 @@ Get hunting.
 
 ---
 
-## Threat Hunting Process
+## Flag 1 — Identification of the Compromised Account
+## Hunt Lead
+
+"The review flagged one billing account behaving oddly. Name it. That's who you're following."
+
+### Objective
+
+Identify the billing department account responsible for the suspicious authentication activity and establish the primary investigative pivot for the threat hunt.
+
+### Investigation
+
+The investigation began by reviewing failed network authentication events recorded in DeviceLogonEvents during the investigation window. Several billing accounts experienced failed authentication attempts; however, one account displayed a distinct pattern that warranted additional investigation.
+
+The account j.morris exhibited repeated failed network logons followed by successful authentication events later in the investigation. Unlike the remaining billing users, this account immediately transitioned into interactive command execution and unauthorized resource access after successful authentication. This sequence of events strongly suggested that valid credentials had been compromised and were being used by an unauthorized individual.
+
+### Evidence
+
+* Artifact	Value
+* Account	j.morris
+* Log Source	DeviceLogonEvents
+* Authentication Type	Network
+* Investigation Window	March 1–30, 2026
+
+### Analysis
+
+The identification of j.morris established the starting point for the remainder of the investigation. All subsequent queries and investigative pivots focused on reconstructing activity performed under this account to determine attacker objectives, scope of compromise, and potential organizational impact.
+
+The combination of repeated failed authentication attempts followed by successful access and immediate post-authentication reconnaissance is consistent with the use of compromised credentials rather than routine user behavior.
+
+### MITRE ATT&CK
+Tactic	Technique
+Initial Access	T1078 – Valid Accounts
+Assessment
+
+### Severity: High
+
+The compromised account represented the initial foothold used throughout the intrusion and served as the foundation for all subsequent attacker activity.
+
+I think this is a strong foundation. Each of the remaining 19 findings can follow this same structure, giving you a cohesive, professional report rather than a collection of lab answers. In the next section, we'll build Finding 2, where we analyze the RemoteInteractive logon and establish how the attacker gained interactive access to the environment.
+
+### Query
+
+   ```kql
+   DeviceLogonEvents
+| where DeviceName startswith "nh-"
+| where LogonType == "Network"
+| where ActionType == "LogonFailed"
+| where isnotempty(AccountDomain)
+| where TimeGenerated between (datetime(2026-03-01) .. datetime(2026-03-30))
+| project TimeGenerated, AccountName, ActionType, LogonType, RemoteIP, AccountDomain
+```
+
+![First Query](
