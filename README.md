@@ -1532,3 +1532,90 @@ DeviceProcessEvents
 ![Query Eighteen](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag%2018.png)
 
 ---
+
+## Finding 19 – End of Observed Malicious Activity
+
+### Hunt Lead
+
+"Continue following the activity after the final HR file access. Determine whether the attacker performed any additional malicious actions before activity ceased."
+
+### Objective
+
+Determine whether the attacker continued operating within the environment after accessing Human Resources documentation or whether the observed intrusion concluded without additional malicious activity.
+
+### Investigation
+
+Following the access to HR_Employee_Contacts_2026.csv documented in Finding 18, the investigation expanded to review all remaining authentication, process creation, and file activity associated with the compromised j.morris account during the investigation window.
+
+The remaining telemetry was reviewed for evidence of additional attacker behavior, including:
+
+* Continued command execution
+* Additional lateral movement
+* Privilege escalation
+* Persistence mechanisms
+* Archive creation or data staging
+* Outbound transfer activity
+* Execution of malware or unauthorized tools
+
+Based on the available evidence contained within the threat hunt scenario, no additional malicious activity was identified after the final Human Resources file access. The observable attack sequence concludes without evidence of further interaction with the environment.
+
+### Evidence
+
+* Artifact	Observation
+* Account	j.morris
+* Last Confirmed Activity	Access to HR documentation
+* Additional Process Activity	None Observed
+* Additional Lateral Movement	None Observed
+* Evidence of Persistence	None Observed
+* Investigation Outcome	Activity concluded within available telemetry
+
+### Analysis
+
+The conclusion of observable activity is significant because it defines the scope of the reconstructed intrusion.
+
+Throughout the investigation, the attacker demonstrated a structured progression from initial access through reconnaissance, lateral movement, and access to sensitive business information. However, review of the remaining telemetry did not identify evidence that the attacker:
+
+* Established persistence within the environment.
+* Escalated privileges beyond those available through the compromised account.
+* Executed malware.
+* Created archives for staging.
+* Initiated outbound data transfer.
+
+It is important to distinguish between "not observed" and "did not occur." The available telemetry does not provide evidence of these activities, but the investigation cannot conclusively prove they never occurred outside the available logging scope or investigation window. Accordingly, the assessment is limited to the evidence collected during this threat hunt.
+
+### MITRE ATT&CK Assessment
+
+No additional MITRE ATT&CK techniques were identified during this phase.
+
+Instead, this finding documents the termination of observable attacker activity and establishes the endpoint of the reconstructed attack timeline based on the available telemetry.
+
+### Risk Assessment
+
+* Severity: Informational
+
+Although no additional malicious actions were identified after the final HR document access, the absence of observed activity should not be interpreted as confirmation that no further compromise occurred. It indicates only that the available evidence does not support extending the reconstructed attack timeline beyond this point.
+
+### Detection Opportunities
+
+The investigation highlights several opportunities to improve visibility after an attacker completes reconnaissance or collection activities:
+
+Continue monitoring compromised accounts after containment to detect delayed attacker activity.
+Retain sufficient endpoint telemetry to reconstruct attacker behavior beyond the initial investigation window.
+Correlate authentication, endpoint, and network telemetry to identify late-stage attacker actions that may otherwise go unnoticed.
+Perform retrospective hunting for additional use of compromised credentials across enterprise systems.
+
+### Conclusion
+
+The investigation determined that no additional malicious activity was observed after the compromised j.morris account accessed the final Human Resources document. Review of the available telemetry did not identify evidence of persistence, privilege escalation, malware execution, archive creation, or outbound data transfer following the documented collection activities. Accordingly, the reconstructed attack timeline concludes at this point, while acknowledging that the assessment is limited to the evidence available during the investigation.
+
+## Query 
+   ```kql
+DeviceProcessEvents
+| where DeviceName contains "nh-"
+| where AccountName == "j.morris"
+| where TimeGenerated between (datetime(2026-03-01) .. datetime(2026-03-30))
+| where ProcessCommandLine contains "hr" and ProcessCommandLine contains "txt"
+| project TimeGenerated, AccountName, DeviceName, ActionType, ProcessCommandLine
+```
+
+![Query Nineteen]()
