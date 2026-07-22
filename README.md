@@ -327,6 +327,19 @@ Monitor for rmdir or del commands executed immediately after privilege escalatio
 Alert when directory deletion targets user profile directories, document repositories, or security log locations.
 Correlate deletion commands with subsequent log clearing or evidence of anti-forensic behavior.
 Review command execution in chronological context to distinguish legitimate maintenance activity from attacker actions.
-Conclusion
+
+### Conclusion
 
 The initial rmdir commands observed for the j.morris account were investigated because directory deletion can indicate attempts to destroy evidence or remove files during an intrusion. However, based on the available telemetry, the commands were not associated with destructive actions against sensitive organizational data and preceded the attacker's identifiable reconnaissance activity. As a result, they were assessed as benign environmental noise and excluded from the reconstructed attack timeline, allowing the investigation to focus on the confirmed malicious actions that followed.
+
+### Query 
+
+   ```kql
+DeviceProcessEvents
+| where AccountName == "j.morris"
+| where TimeGenerated between (datetime(2026-03-01) .. datetime(2026-03-30))
+| where InitiatingProcessCommandLine contains "rmdir"
+| project TimeGenerated, AccountName, ActionType, InitiatingProcessCommandLine, ProcessCommandLine
+```
+
+![Fourth Query](
