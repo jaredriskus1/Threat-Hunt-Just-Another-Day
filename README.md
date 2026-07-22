@@ -519,3 +519,82 @@ DeviceProcessEvents
 ![Query Six](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag%206.png)
 
 ---
+
+## Finding 7 – Enterprise Domain Enumeration
+
+### Hunt Lead
+
+"The attacker has learned about one server. The next command widens the search to the rest of the organization. Identify the command used to enumerate the domain."
+
+### Objective
+
+Determine whether the attacker attempted to enumerate systems across the Active Directory domain and assess how this activity contributed to the progression of the intrusion.
+
+### Investigation
+
+Following the targeted reconnaissance of the NH-FS-01 file server documented in Finding 6, the investigation continued by reviewing subsequent process execution events associated with the compromised j.morris account.
+
+Analysis of DeviceProcessEvents revealed execution of the following command:
+
+net.exe view /domain:nimbus
+
+This command requests a list of systems within the Nimbus Active Directory domain. Unlike the previous net view \\NH-FS-01 command, which queried a specific host, this command broadened the scope of reconnaissance by enumerating domain-wide resources.
+
+The timing of this activity suggests the attacker had completed their initial assessment of the compromised workstation and the identified file server and was now expanding their understanding of the enterprise environment to identify additional systems that might support lateral movement or provide access to valuable data.
+
+### Evidence
+
+* Artifact	Value
+* Account	j.morris
+* Log Source	DeviceProcessEvents
+* Command	net.exe view /domain:nimbus
+* Activity	Domain Enumeration
+* Target	Nimbus Active Directory Domain
+
+### Analysis
+
+The execution of net.exe view /domain:nimbus represents a natural progression in the attacker's reconnaissance strategy. Rather than continuing to investigate a single server, the attacker shifted to enterprise-level discovery by requesting information about systems registered within the Active Directory domain.
+
+This behavior provides valuable context when viewed alongside previous findings:
+
+Finding 5 established that the attacker was identifying the compromised user context and local workstation.
+Finding 6 demonstrated targeted enumeration of a known file server.
+Finding 7 shows the attacker expanding reconnaissance to identify additional systems throughout the enterprise.
+
+This measured progression is characteristic of a hands-on-keyboard intrusion, where the attacker incrementally builds situational awareness before attempting further movement or data access. The use of native Windows networking utilities also reduces the need for external tools and can make malicious activity more difficult to distinguish from legitimate administrative actions.
+
+### MITRE ATT&CK Mapping
+
+* Tactic	Technique	Rationale
+* Discovery	T1018 – Remote System Discovery	The attacker enumerated systems within the Active Directory domain using native Windows commands.
+
+### Risk Assessment
+
+* Severity: Medium–High
+
+Although domain enumeration does not directly modify systems or access sensitive data, it significantly enhances an attacker's understanding of the enterprise. By identifying available systems, the attacker can prioritize targets for lateral movement, privilege escalation, or data collection while minimizing unnecessary network activity.
+
+### Detection Opportunities
+
+Organizations can improve detection of similar reconnaissance by:
+
+Monitoring execution of net.exe view /domain by non-administrative accounts.
+Correlating domain enumeration with recent successful remote interactive logons.
+Alerting when native Windows discovery commands are executed in rapid succession by the same user.
+Establishing behavioral baselines for domain enumeration and investigating deviations from normal user activity.
+
+### Conclusion
+
+The investigation confirmed that the compromised j.morris account executed net.exe view /domain:nimbus, expanding reconnaissance from a single file server to the broader Active Directory environment. This activity demonstrates a deliberate effort to identify additional systems within the organization and further supports the assessment that the attacker was conducting structured post-compromise reconnaissance in preparation for subsequent phases of the intrusion.
+
+### Query
+
+   ```kql
+DeviceProcessEvents
+| where DeviceName startswith "nh-"
+| where AccountName == "j.morris"
+| where TimeGenerated between (datetime(2026-03-01) .. datetime(2026-03-30))
+| where ProcessCommandLine has_any ("net", "whoami", "hostname", "nslookup", "nltest")
+| project TimeGenerated, AccountName, DeviceName, ActionType, ProcessCommandLine
+
+![Query Seven]()
