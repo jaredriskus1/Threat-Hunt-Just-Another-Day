@@ -162,10 +162,10 @@ A successful RemoteInteractive logon using a compromised user account provides a
 
 The following detections could have identified this activity earlier:
 
-Alert on RemoteInteractive logons originating from uncommon or external IP addresses.
-Detect user accounts transitioning from repeated failed logons to successful RemoteInteractive sessions within a short timeframe.
-Establish behavioral baselines for remote logon activity by department and alert on deviations.
-Correlate RemoteInteractive logons with immediate execution of reconnaissance commands such as whoami, hostname, net, or nslookup.
+* Alert on RemoteInteractive logons originating from uncommon or external IP addresses.
+* Detect user accounts transitioning from repeated failed logons to successful RemoteInteractive sessions within a short timeframe.
+* Establish behavioral baselines for remote logon activity by department and alert on deviations.
+* Correlate RemoteInteractive logons with immediate execution of reconnaissance commands such as whoami, hostname, net, or nslookup.
 
 ### Conclusion
 
@@ -223,10 +223,10 @@ While remote access from external IP addresses can be legitimate when employees 
 
 When viewed alongside the evidence from the previous findings, the attack sequence becomes clearer:
 
-Multiple failed authentication attempts occurred.
-The attacker successfully authenticated using the j.morris account.
-The successful sessions originated from an external IP address.
-The attacker immediately began interactive reconnaissance using native Windows utilities.
+* Multiple failed authentication attempts occurred.
+* The attacker successfully authenticated using the j.morris account.
+* The successful sessions originated from an external IP address.
+* The attacker immediately began interactive reconnaissance using native Windows utilities.
 
 This progression is consistent with an external actor gaining access through compromised credentials and beginning manual post-compromise operations.
 
@@ -245,11 +245,11 @@ Successful authentication from an external IP address using a compromised accoun
 
 The following monitoring capabilities could improve detection of similar activity:
 
-Alert on successful RemoteInteractive logons originating from public IP addresses.
-Correlate repeated authentication failures followed by a successful remote logon from the same account.
-Generate alerts for user accounts authenticating from previously unseen source IP addresses.
-Monitor for remote sessions that are immediately followed by execution of discovery commands such as whoami, hostname, or net.exe.
-Enrich authentication logs with IP reputation and geolocation data to provide additional context during investigations.
+* Alert on successful RemoteInteractive logons originating from public IP addresses.
+* Correlate repeated authentication failures followed by a successful remote logon from the same account.
+* Generate alerts for user accounts authenticating from previously unseen source IP addresses.
+* Monitor for remote sessions that are immediately followed by execution of discovery commands such as whoami, hostname, or net.exe.
+* Enrich authentication logs with IP reputation and geolocation data to provide additional context during investigations.
 
 ### Conclusion
 
@@ -323,10 +323,10 @@ The observed directory deletion commands were assessed as benign environmental a
 
 Even though the activity was determined to be benign, similar commands can warrant investigation when accompanied by additional indicators of compromise. Detection opportunities include:
 
-Monitor for rmdir or del commands executed immediately after privilege escalation or data staging.
-Alert when directory deletion targets user profile directories, document repositories, or security log locations.
-Correlate deletion commands with subsequent log clearing or evidence of anti-forensic behavior.
-Review command execution in chronological context to distinguish legitimate maintenance activity from attacker actions.
+* Monitor for rmdir or del commands executed immediately after privilege escalation or data staging.
+* Alert when directory deletion targets user profile directories, document repositories, or security log locations.
+* Correlate deletion commands with subsequent log clearing or evidence of anti-forensic behavior.
+* Review command execution in chronological context to distinguish legitimate maintenance activity from attacker actions.
 
 ### Conclusion
 
@@ -384,10 +384,10 @@ The observed command sequence reflects a disciplined reconnaissance workflow com
 
 The progression of commands is significant:
 
-whoami confirmed the privileges and identity associated with the compromised account.
-hostname identified the workstation from which the attacker was operating, helping correlate their position within the enterprise.
-net use provided visibility into mapped drives and active network connections that could expose accessible file shares.
-net view \\NH-FS-01 shifted the focus from the local workstation to a specific file server, indicating that the attacker had already identified a potentially valuable target for further investigation.
+* whoami confirmed the privileges and identity associated with the compromised account.
+* hostname identified the workstation from which the attacker was operating, helping correlate their position within the enterprise.
+* net use provided visibility into mapped drives and active network connections that could expose accessible file shares.
+* net view \\NH-FS-01 shifted the focus from the local workstation to a specific file server, indicating that the attacker had already identified a potentially valuable target for further investigation.
 
 The deliberate order of execution suggests that the attacker was systematically preparing for the next phase of the intrusion. Rather than conducting broad, noisy scanning, the reconnaissance remained focused and leveraged trusted Windows utilities that are commonly present on enterprise systems.
 
@@ -408,10 +408,10 @@ Although no data was accessed during this phase, successful reconnaissance signi
 
 The following detection opportunities could improve visibility into similar reconnaissance activity:
 
-Alert on execution of whoami, hostname, net use, and net view by non-administrative users following remote interactive logons.
-Correlate multiple reconnaissance commands executed within a short time window by the same account.
-Monitor for net view targeting file servers containing sensitive business data.
-Create behavioral analytics that identify unusual command sequences immediately following successful remote authentication.
+* Alert on execution of whoami, hostname, net use, and net view by non-administrative users following remote interactive logons.
+* Correlate multiple reconnaissance commands executed within a short time window by the same account.
+* Monitor for net view targeting file servers containing sensitive business data.
+* Create behavioral analytics that identify unusual command sequences immediately following successful remote authentication.
 
 ### Conclusion
 
@@ -496,10 +496,10 @@ Although this activity alone did not modify or exfiltrate data, it substantially
 
 Organizations can improve visibility into similar activity by:
 
-Monitoring execution of net view commands directed at critical file servers.
-Correlating file server enumeration immediately following RemoteInteractive logons.
-Alerting when non-administrative accounts enumerate enterprise file servers outside their normal responsibilities.
-Creating behavioral detections for users transitioning from workstation reconnaissance to server enumeration within a short time period.
+* Monitoring execution of net view commands directed at critical file servers.
+* Correlating file server enumeration immediately following RemoteInteractive logons.
+* Alerting when non-administrative accounts enumerate enterprise file servers outside their normal responsibilities.
+* Creating behavioral detections for users transitioning from workstation reconnaissance to server enumeration within a short time period.
 
 ### Conclusion
 
@@ -557,9 +557,9 @@ The execution of net.exe view /domain:nimbus represents a natural progression in
 
 This behavior provides valuable context when viewed alongside previous findings:
 
-Finding 5 established that the attacker was identifying the compromised user context and local workstation.
-Finding 6 demonstrated targeted enumeration of a known file server.
-Finding 7 shows the attacker expanding reconnaissance to identify additional systems throughout the enterprise.
+* Finding 5 established that the attacker was identifying the compromised user context and local workstation.
+* Finding 6 demonstrated targeted enumeration of a known file server.
+* Finding 7 shows the attacker expanding reconnaissance to identify additional systems throughout the enterprise.
 
 This measured progression is characteristic of a hands-on-keyboard intrusion, where the attacker incrementally builds situational awareness before attempting further movement or data access. The use of native Windows networking utilities also reduces the need for external tools and can make malicious activity more difficult to distinguish from legitimate administrative actions.
 
@@ -578,10 +578,10 @@ Although domain enumeration does not directly modify systems or access sensitive
 
 Organizations can improve detection of similar reconnaissance by:
 
-Monitoring execution of net.exe view /domain by non-administrative accounts.
-Correlating domain enumeration with recent successful remote interactive logons.
-Alerting when native Windows discovery commands are executed in rapid succession by the same user.
-Establishing behavioral baselines for domain enumeration and investigating deviations from normal user activity.
+* Monitoring execution of net.exe view /domain by non-administrative accounts.
+* Correlating domain enumeration with recent successful remote interactive logons.
+* Alerting when native Windows discovery commands are executed in rapid succession by the same user.
+* Establishing behavioral baselines for domain enumeration and investigating deviations from normal user activity.
 
 ### Conclusion
 
@@ -637,11 +637,11 @@ The execution of whoami /groups demonstrates that the attacker was validating th
 
 This represents a deliberate progression in the attack lifecycle:
 
-Identify the current user (whoami)
-Identify the compromised system (hostname)
-Discover accessible network resources (net use)
-Enumerate enterprise systems (net view)
-Determine effective permissions (whoami /groups)
+* Identify the current user (whoami)
+* Identify the compromised system (hostname)
+* Discover accessible network resources (net use)
+* Enumerate enterprise systems (net view)
+* Determine effective permissions (whoami /groups)
 
 Rather than attempting privileged actions blindly, the attacker first established exactly what access was already available through the compromised credentials. This approach minimizes unnecessary activity and allows the attacker to tailor subsequent actions to the permissions already granted to the account.
 
@@ -662,10 +662,10 @@ Permission enumeration enables an attacker to understand the scope of access alr
 
 Organizations can improve visibility into similar activity by:
 
-Monitoring execution of whoami /groups following remote interactive logons.
-Correlating permission enumeration with recent reconnaissance commands such as net.exe view or hostname.
-Creating behavioral detections for users executing multiple discovery commands within a short timeframe.
-Establishing baselines for administrative utilities executed by non-administrative users and investigating deviations.
+* Monitoring execution of whoami /groups following remote interactive logons.
+* Correlating permission enumeration with recent reconnaissance commands such as net.exe view or hostname.
+* Creating behavioral detections for users executing multiple discovery commands within a short timeframe.
+* Establishing baselines for administrative utilities executed by non-administrative users and investigating deviations.
 
 ### Conclusion
 
@@ -851,3 +851,87 @@ DeviceProcessEvents
 ![Query Ten](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag%2010.png)
 
 ---
+
+## Finding 11 – Access to Billing Workflow Audit Records
+
+### Hunt Lead
+
+"The invoice wasn't the only item of interest. Determine what additional billing artifact the attacker accessed to understand the organization's approval process."
+
+### Objective
+
+Identify the additional billing-related file accessed by the compromised account and assess what this reveals about the attacker's objectives following initial access to the Billing department file share.
+
+### Investigation
+
+After identifying the first billing document accessed in Finding 10, the investigation continued by reviewing subsequent file activity within the \\NH-FS-01\Billing\2026-03\Approved\ directory.
+
+The next significant artifact accessed by the compromised j.morris account was:
+
+review_audit
+
+Unlike the previously accessed invoice file, this artifact appears to be associated with the organization's billing review or approval process. Based on its name and location within the Billing share, the file likely serves as an audit or tracking record supporting billing operations. The source material identifies the file by name but does not describe its contents, so no additional assumptions are made regarding the information it contained.
+
+The sequence of file access indicates that the attacker was not randomly opening files. Instead, they appeared to be systematically exploring documents related to the billing workflow to better understand internal business operations.
+
+### Evidence
+
+* Artifact	Value
+* Account	j.morris
+* File Server	NH-FS-01
+* Directory	\\NH-FS-01\Billing\2026-03\Approved\
+* File Accessed	review_audit
+* Activity	Billing Workflow Audit Record Access
+
+### Analysis
+
+This finding demonstrates that the attacker's objectives extended beyond viewing a single financial document. By accessing a billing audit record immediately after reviewing an approved invoice, the attacker appeared to be developing a broader understanding of how the organization's billing process operates.
+
+From an attacker's perspective, workflow documentation and audit records can provide valuable operational context, including approval processes, naming conventions, and relationships between financial records. Even without evidence that the file was modified or exfiltrated, unauthorized access to these supporting artifacts may help an attacker prioritize future targets or better understand the organization's internal processes.
+
+When viewed alongside the previous findings, the intrusion continues to follow a deliberate progression:
+
+* Gain remote access using valid credentials.
+* Perform host and network reconnaissance.
+* Identify the billing file server.
+* Enumerate permissions.
+* Access the Billing share.
+* Review billing documentation.
+* Examine workflow-related records.
+
+This sequence reinforces the assessment that the attacker was conducting a structured, manual exploration of the environment rather than indiscriminately browsing files.
+
+### MITRE ATT&CK Mapping
+* Tactic	Technique	Rationale
+* Collection	T1005 – Data from Local System	The attacker accessed additional organizational files available through the compromised account's existing permissions.
+
+### Risk Assessment
+
+* Severity: High
+
+Access to workflow documentation and audit records increases organizational risk because these artifacts can provide insight into internal business processes, financial operations, and document organization. Even if no data is modified, unauthorized review of operational records may improve an attacker's ability to identify valuable information or plan subsequent actions.
+
+### Detection Opportunities
+
+Organizations can strengthen detection by:
+
+Monitoring access to workflow and audit records located within sensitive departmental file shares.
+Correlating access to multiple related business documents during a single remote interactive session.
+Alerting when users access audit or workflow documentation outside their normal responsibilities or usage patterns.
+Combining authentication telemetry with file access events to identify unusual sequences of activity following remote logons.
+
+### Conclusion
+
+The investigation confirmed that the compromised j.morris account accessed the review_audit artifact after reviewing billing documentation within the Approved billing directory. Although the available evidence does not describe the file's contents, its location and naming convention indicate it is associated with the organization's billing workflow. This finding demonstrates that the attacker continued exploring operational business records after gaining access to the Billing share, further supporting the assessment of a deliberate, hands-on intrusion focused on understanding and accessing organizational information.
+
+### Query
+
+   ```kql
+DeviceProcessEvents
+| where DeviceName startswith "nh-"
+| where TimeGenerated between (datetime(2026-03-01) .. datetime(2026-03-30))
+| where AccountName == "j.morris"
+| where ProcessCommandLine contains "billing" and ProcessCommandLine contains "audit"
+| project TimeGenerated, AccountName, DeviceName, ActionType, ProcessCommandLine
+```
+![Query 11]()
