@@ -596,6 +596,7 @@ DeviceProcessEvents
 | where TimeGenerated between (datetime(2026-03-01) .. datetime(2026-03-30))
 | where ProcessCommandLine has_any ("net", "whoami", "hostname", "nslookup", "nltest")
 | project TimeGenerated, AccountName, DeviceName, ActionType, ProcessCommandLine
+```
 
 ![Query Seven](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag%207.png)
 
