@@ -1621,3 +1621,101 @@ DeviceProcessEvents
 ![Query Nineteen](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag%2019.png)
 
 ---
+
+## Finding 20 – Overall Threat Hunt Assessment
+
+### Hunt Lead
+
+"Review the entire investigation and determine the attacker's primary objective based on the observed activity. Support your conclusion using the evidence gathered throughout the hunt."
+
+### Objective
+
+Assess the complete sequence of attacker activity to determine the primary objective of the intrusion and summarize the overall findings of the threat hunt.
+
+### Investigation
+
+The investigation reconstructed the attacker's activities from the initial authentication events through the final observed file access. Each investigative finding was correlated to establish a complete timeline of the intrusion.
+
+The observed attack followed a structured progression:
+
+* Compromise of a valid user account through successful authentication.
+* Interactive remote access established using the compromised credentials.
+* Host, network, and domain reconnaissance using native Windows utilities.
+* Privilege and permission enumeration to determine available access.
+* Targeted access to enterprise file shares containing sensitive organizational information.
+* Lateral movement to additional enterprise workstations.
+* Continued access to Human Resources documentation following movement into the HR environment.
+* Conclusion of observable activity without evidence of persistence, malware deployment, privilege escalation, or outbound data transfer.
+
+Throughout the investigation, the attacker consistently focused on discovering and accessing business information available through the permissions of the compromised account. The available evidence supports the conclusion that the intrusion progressed through the Collection phase of the MITRE ATT&CK framework. However, the source material does not provide evidence that the collected information was staged or exfiltrated.
+
+### Summary of Findings
+
+* Phase	Outcome
+* Initial Access	Valid user account compromised
+* Discovery	Host, network, domain, and permission enumeration completed
+* Collection	Billing, Payroll, and Human Resources information accessed
+* Lateral Movement	Authentication to additional enterprise workstations observed
+* Persistence	Not Observed
+* Privilege Escalation	Not Observed
+* Malware Execution	Not Observed
+* Data Staging	Not Observed
+* Data Exfiltration	Not Observed
+
+### Analysis
+
+The evidence collected during this threat hunt demonstrates a disciplined, interactive intrusion carried out using legitimate user credentials.
+
+Rather than relying on malware or exploit-based techniques, the attacker leveraged trusted Windows utilities and existing account permissions to navigate the environment. The intrusion progressed in a logical sequence, beginning with environmental reconnaissance and culminating in the unauthorized access of multiple categories of sensitive organizational information.
+
+The investigation identified access to:
+
+* Billing documentation
+* Billing workflow records
+* Payroll documentation
+* Human Resources records
+* Employee disciplinary information
+* Employee compensation records
+* Employee contact information
+
+This pattern is consistent with an attacker whose immediate objective was to collect and review organizational information. While the investigation did not identify evidence of staging or exfiltration, the breadth of accessed data demonstrates that the attacker successfully expanded beyond the original user's expected business role and reached multiple high-value information repositories.
+
+Importantly, the available telemetry does not support conclusions that the attacker established persistence, deployed malware, escalated privileges, or transmitted data outside the environment. These activities were specifically reviewed during the investigation but were not observed within the available evidence.
+
+
+### MITRE ATT&CK Summary
+
+* Tactic	Techniques Observed
+* Initial Access	T1078 – Valid Accounts
+* Discovery	T1033 – System Owner/User Discovery
+* Discovery	T1082 – System Information Discovery
+* Discovery	T1135 – Network Share Discovery
+* Discovery	T1018 – Remote System Discovery
+* Discovery	T1069 – Permission Groups Discovery
+* Lateral Movement	T1021 – Remote Services
+* Collection	T1005 – Data from Local System
+
+### Overall Risk Assessment
+
+* Severity: High
+
+The investigation confirmed that an unauthorized actor successfully authenticated using valid credentials, performed structured reconnaissance, moved to additional systems, and accessed multiple categories of sensitive organizational information. Although no evidence of malware deployment or data exfiltration was identified within the available telemetry, the breadth of unauthorized access demonstrates a significant compromise of confidentiality and highlights the effectiveness of credential-based attacks against enterprise environments.
+
+### Recommendations
+
+Based on the findings of this investigation, the following actions are recommended:
+
+* Immediately disable or reset credentials associated with the compromised account.
+* Review all authentication activity for the affected account during and after the investigation period.
+* Validate that no unauthorized accounts, scheduled tasks, or persistence mechanisms were introduced.
+* Implement behavioral detections for reconnaissance commands such as whoami, hostname, and net.exe when executed after remote interactive logons.
+* Increase auditing of sensitive Billing and Human Resources repositories.
+* Deploy alerts for unusual lateral movement between departmental workstations.
+* Review access permissions to ensure users have only the minimum privileges required for their roles.
+* Conduct a retrospective hunt for similar credential-based activity across the enterprise.
+
+### Conclusion
+
+This threat hunt successfully reconstructed the lifecycle of a credential-based intrusion from initial access through the attacker's final observed activity. The evidence demonstrates that the attacker systematically leveraged valid credentials to enumerate the environment, identify valuable organizational resources, and access sensitive information spanning Billing, Payroll, and Human Resources.
+
+While the investigation did not identify evidence of persistence, malware execution, privilege escalation, staging, or exfiltration, it clearly established that the attacker achieved their immediate objective of collecting sensitive organizational information. Based on the available evidence, the intrusion is best characterized as a credential-driven, hands-on-keyboard attack focused on information collection using legitimate account access.
