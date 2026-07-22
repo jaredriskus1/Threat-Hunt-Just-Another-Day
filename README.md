@@ -51,6 +51,7 @@ Get hunting.
 ---
 
 ## Flag 1 — Identification of the Compromised Account
+
 ## Hunt Lead
 
 "The review flagged one billing account behaving oddly. Name it. That's who you're following."
@@ -80,9 +81,11 @@ The identification of j.morris established the starting point for the remainder 
 The combination of repeated failed authentication attempts followed by successful access and immediate post-authentication reconnaissance is consistent with the use of compromised credentials rather than routine user behavior.
 
 ### MITRE ATT&CK
-Tactic	Technique
-Initial Access	T1078 – Valid Accounts
-Assessment
+
+*Tactic	Technique
+*Initial Access	T1078 – Valid Accounts
+
+### Assessment
 
 ### Severity: High
 
@@ -105,6 +108,7 @@ DeviceLogonEvents
 ---
 
 ## Flag 2 - Interactive Remote Access Established
+
 ### Hunt Lead
 
 "This account isn't being used by someone sitting at the billing desk. Its successful sessions are a different kind of logon entirely. Give me the logon type."
@@ -142,10 +146,11 @@ Although the logon type alone does not confirm malicious activity, its correlati
 
 This finding also establishes the beginning of the attack lifecycle reconstructed throughout this report, linking the initial credential compromise to the subsequent Discovery, Lateral Movement, and Collection phases.
 
-MITRE ATT&CK Mapping
-Tactic	Technique	Rationale
-Initial Access	T1078 – Valid Accounts	The attacker authenticated using legitimate user credentials.
-Lateral Movement	T1021 – Remote Services	The RemoteInteractive session indicates the use of remote access services to establish an interactive session.
+### MITRE ATT&CK Mapping
+
+*Tactic	Technique	Rationale
+*Initial Access	T1078 – Valid Accounts	The attacker authenticated using legitimate user credentials.
+*Lateral Movement	T1021 – Remote Services	The RemoteInteractive session indicates the use of remote access services to establish an interactive session.
 
 ### Risk Assessment
 
@@ -184,3 +189,68 @@ The investigation confirmed that the compromised j.morris account established Re
 ---
 
 ## Flag 3 – External Source of Remote Access Identified
+
+### Hunt Lead
+
+"Here's what should stop you. Those remote sessions into the billing workstation are not coming from inside the clinic. Give me one of the sources they're coming from, and satisfy yourself it isn't an internal address."
+
+### Objective
+
+Determine the source IP address associated with the successful RemoteInteractive sessions and assess whether the connections originated from a trusted internal network or an external source.
+
+### Investigation
+
+After confirming that the compromised j.morris account established successful RemoteInteractive sessions, the investigation focused on identifying the source of those connections. Using the same DeviceLogonEvents query developed during Finding 2, attention shifted to the RemoteIP field to determine the origin of the authenticated sessions.
+
+Review of the authentication logs identified the remote source IP address 193.36.225.245 as the origin of the successful logons. The address did not correspond to an internal Nimbus Healthcare network and was observed during the same timeframe as the suspicious authentication activity.
+
+Because the successful remote sessions originated from an external address rather than the organization's internal infrastructure, the likelihood of legitimate employee activity was significantly reduced. Combined with the previously observed failed authentication attempts and subsequent interactive command execution, the evidence supports the conclusion that the attacker successfully authenticated from outside the corporate network using valid credentials.
+
+## Evidence
+
+*Artifact	Value
+*Account	j.morris
+*Log Source	DeviceLogonEvents
+*Logon Type	RemoteInteractive
+*Remote Source IP	193.36.225.245
+*Authentication	Successful Remote Logon
+
+## Analysis
+
+The identification of an external source IP represents a critical milestone in the investigation because it establishes that the suspicious authentication activity originated from outside the organization's trusted environment.
+
+While remote access from external IP addresses can be legitimate when employees connect through approved remote access solutions, the source material does not indicate that 193.36.225.245 belongs to an approved corporate network or VPN infrastructure. Accordingly, the investigation treats it as an external source associated with the suspicious activity, rather than attributing it to a known trusted service.
+
+When viewed alongside the evidence from the previous findings, the attack sequence becomes clearer:
+
+Multiple failed authentication attempts occurred.
+The attacker successfully authenticated using the j.morris account.
+The successful sessions originated from an external IP address.
+The attacker immediately began interactive reconnaissance using native Windows utilities.
+
+This progression is consistent with an external actor gaining access through compromised credentials and beginning manual post-compromise operations.
+
+### MITRE ATT&CK Mapping
+*Tactic	Technique	Rationale
+*Initial Access	T1078 – Valid Accounts	The attacker successfully authenticated using legitimate credentials.
+*Lateral Movement	T1021 – Remote Services	Remote interactive access was established from an external source.
+
+### Risk Assessment
+
+*Severity: High
+
+Successful authentication from an external IP address using a compromised account presents a significant security risk because it provides an attacker with direct access to internal resources while appearing as a legitimate user. Without behavioral monitoring or conditional access controls, this type of activity can blend into normal authentication traffic and delay detection.
+
+### Detection Opportunities
+
+The following monitoring capabilities could improve detection of similar activity:
+
+Alert on successful RemoteInteractive logons originating from public IP addresses.
+Correlate repeated authentication failures followed by a successful remote logon from the same account.
+Generate alerts for user accounts authenticating from previously unseen source IP addresses.
+Monitor for remote sessions that are immediately followed by execution of discovery commands such as whoami, hostname, or net.exe.
+Enrich authentication logs with IP reputation and geolocation data to provide additional context during investigations.
+
+### Conclusion
+
+The investigation identified 193.36.225.245 as the source of the successful RemoteInteractive sessions associated with the compromised j.morris account. Based on the source material, the address was external to the organization's environment and was observed immediately before the attacker began reconnaissance activities. This finding strengthens the assessment that the activity originated from an unauthorized external actor using valid credentials rather than from routine internal user activity.
