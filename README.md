@@ -937,3 +937,95 @@ DeviceProcessEvents
 ![Query 11](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag%2011.png)
 
 ---
+
+## Finding 12 – Access to Payroll-Related Documentation
+
+### Hunt Lead
+
+"The attacker's attention shifts from billing operations to payroll information. Identify the payroll-related file that was accessed and assess its significance within the investigation."
+
+### Objective
+
+Determine whether the attacker expanded their activity beyond Billing department records by accessing payroll-related documentation and evaluate the significance of this transition within the overall intrusion.
+
+### Investigation
+
+Following the review of billing documentation and workflow artifacts documented in Findings 10 and 11, the investigation continued by examining additional file access activity performed by the compromised j.morris account.
+
+Review of the available telemetry identified access to the following file:
+
+temp_payroll_review_jmorris_20260311.txt.txt
+
+The filename indicates the document is related to payroll review and is associated with the j.morris account. The source material records the filename, including its double .txt extension, but does not indicate why that naming convention was used or whether the file had been renamed by the attacker or another process.
+
+Regardless of the reason for the filename, the access itself represents an expansion of the attacker's activity beyond billing operations into payroll-related information.
+
+### Evidence
+
+* Artifact	Value
+* Account	j.morris
+* File Server	NH-FS-01
+* File Accessed	temp_payroll_review_jmorris_20260311.txt.txt
+* Category	Payroll Documentation
+* Activity	Payroll File Access
+
+### Analysis
+
+This finding marks an important shift in the reconstructed attack timeline.
+
+Earlier findings demonstrated that the attacker was focused on understanding billing operations through invoices and workflow documentation. The subsequent access to a payroll-related file indicates that the attacker broadened their activity to include another category of potentially sensitive organizational information.
+
+From an investigative standpoint, this progression is significant because it suggests the attacker was no longer confined to exploring a single business function. Instead, they were identifying and accessing multiple types of organizational records available through the compromised account's permissions.
+
+While the filename includes a double .txt extension, the available evidence does not explain the reason for that naming convention. Accordingly, no conclusion is drawn regarding whether the filename reflects deliberate concealment, user behavior, or an automated process. The investigation is limited to confirming that the payroll-related file was accessed.
+
+Viewed within the broader timeline, the attacker's progression is consistent:
+
+* Initial compromise of a valid user account.
+* Interactive remote access.
+* Host and network reconnaissance.
+* Privilege enumeration.
+* Access to billing records.
+* Review of billing workflow artifacts.
+* Expansion into payroll-related documentation.
+
+This sequence demonstrates a methodical approach to identifying and reviewing sensitive organizational information across multiple business functions.
+
+### MITRE ATT&CK Mapping
+
+* Tactic	Technique	Rationale
+* Collection	T1005 – Data from Local System	The attacker accessed payroll-related organizational data available through the compromised account's existing permissions.
+
+### Risk Assessment
+
+* Severity: High
+
+Payroll records frequently contain sensitive business and personnel information. Unauthorized access to these records increases the potential impact of a compromise because it expands the scope of exposed information beyond financial workflows to include employee-related data.
+
+Although the available evidence confirms access rather than exfiltration, the activity demonstrates that the attacker was systematically reviewing multiple categories of organizational information.
+
+### Detection Opportunities
+
+Organizations can improve detection of similar activity by:
+
+* Monitoring access to payroll-related files outside established business workflows.
+* Correlating payroll file access with recent anomalous authentication events.
+* Alerting when a user rapidly transitions between unrelated business repositories, such as Billing and HR.
+* Applying enhanced auditing to payroll and HR directories to improve visibility into unauthorized access.
+
+### Conclusion
+
+The investigation confirmed that the compromised j.morris account accessed the payroll-related file temp_payroll_review_jmorris_20260311.txt.txt. This activity represents the first observed interaction with payroll documentation during the intrusion and demonstrates that the attacker expanded their focus beyond billing operations to additional categories of sensitive organizational information. While the filename contains an unusual double .txt extension, the available evidence does not establish the reason for that naming convention, and no conclusions regarding its origin are drawn. Overall, this finding reflects a continued progression from reconnaissance into the systematic collection of business and personnel-related data.
+
+### Query 
+  
+   ```kql
+DeviceProcessEvents
+| where DeviceName startswith "nh-"
+| where TimeGenerated between (datetime(2026-03-01) .. datetime(2026-03-30))
+| where AccountName == "j.morris"
+| where ProcessCommandLine contains "hr" and ProcessCommandLine contains "payroll"
+| project TimeGenerated, AccountName, DeviceName, ActionType, ProcessCommandLine
+```
+
+![Query Twelve]()
