@@ -88,12 +88,10 @@ Assessment
 
 The compromised account represented the initial foothold used throughout the intrusion and served as the foundation for all subsequent attacker activity.
 
-I think this is a strong foundation. Each of the remaining 19 findings can follow this same structure, giving you a cohesive, professional report rather than a collection of lab answers. In the next section, we'll build Finding 2, where we analyze the RemoteInteractive logon and establish how the attacker gained interactive access to the environment.
-
 ### Query
 
    ```kql
-   DeviceLogonEvents
+DeviceLogonEvents
 | where DeviceName startswith "nh-"
 | where LogonType == "Network"
 | where ActionType == "LogonFailed"
@@ -107,3 +105,78 @@ I think this is a strong foundation. Each of the remaining 19 findings can follo
 ---
 
 ## Flag 2 
+### Hunt Lead
+
+"This account isn't being used by someone sitting at the billing desk. Its successful sessions are a different kind of logon entirely. Give me the logon type."
+
+### Objective
+
+Determine how the compromised account authenticated to the environment and whether the observed logon activity was consistent with the user's normal role or indicative of unauthorized remote access.
+
+### Investigation
+
+Following identification of the compromised account (j.morris), the investigation pivoted from failed authentication events to successful logons recorded in DeviceLogonEvents. The objective was to determine how the attacker transitioned from unsuccessful authentication attempts to an active session within the environment.
+
+Filtering for successful authentication events associated with the compromised account revealed that each successful session used the RemoteInteractive logon type rather than a standard interactive workstation logon. This logon type is commonly associated with technologies such as Remote Desktop Protocol (RDP), Remote Assistance, or other remote interactive session mechanisms, allowing a user to control a system from another location.
+
+For a billing department employee whose daily responsibilities are expected to occur from an assigned workstation, repeated RemoteInteractive sessions represent a notable deviation from expected behavior. While remote interactive logons can be legitimate in environments that support remote work or IT administration, their occurrence immediately following repeated failed authentication attempts significantly increases the likelihood of unauthorized account use.
+
+The successful remote sessions also served as the starting point for the attacker’s subsequent activity, including system reconnaissance, network enumeration, and access to sensitive business data documented throughout the remainder of this investigation.
+
+### Evidence
+
+*Artifact	Value
+*Account	j.morris
+*Log Source	DeviceLogonEvents
+*ActionType	LogonSuccess
+*Logon Type	RemoteInteractive
+*Investigation Window	March 1–30, 2026
+
+### Analysis
+
+The transition from failed network authentication attempts to successful RemoteInteractive logons strongly suggests that the attacker successfully authenticated using valid credentials and established an interactive session on the target workstation.
+
+Unlike automated malware or scripted attacks, RemoteInteractive sessions provide an attacker with direct control of the system, enabling them to manually execute commands, browse directories, and interact with resources as though they were physically present at the workstation. This observation is significant because it establishes that the attacker was operating in an interactive, hands-on manner rather than relying solely on automated tools.
+
+Although the logon type alone does not confirm malicious activity, its correlation with the previously identified failed authentication attempts and the reconnaissance activity observed immediately afterward provides strong evidence that the account was being used by an unauthorized operator.
+
+This finding also establishes the beginning of the attack lifecycle reconstructed throughout this report, linking the initial credential compromise to the subsequent Discovery, Lateral Movement, and Collection phases.
+
+MITRE ATT&CK Mapping
+Tactic	Technique	Rationale
+Initial Access	T1078 – Valid Accounts	The attacker authenticated using legitimate user credentials.
+Lateral Movement	T1021 – Remote Services	The RemoteInteractive session indicates the use of remote access services to establish an interactive session.
+
+### Risk Assessment
+
+*Severity: High
+
+A successful RemoteInteractive logon using a compromised user account provides an attacker with the same capabilities as a legitimate user, allowing unrestricted interaction with the operating system within the permissions of that account. Because these sessions often resemble normal administrative activity, they can evade traditional signature-based detection if behavioral monitoring is not in place.
+
+### Detection Opportunities
+
+The following detections could have identified this activity earlier:
+
+Alert on RemoteInteractive logons originating from uncommon or external IP addresses.
+Detect user accounts transitioning from repeated failed logons to successful RemoteInteractive sessions within a short timeframe.
+Establish behavioral baselines for remote logon activity by department and alert on deviations.
+Correlate RemoteInteractive logons with immediate execution of reconnaissance commands such as whoami, hostname, net, or nslookup.
+
+### Conclusion
+
+The investigation confirmed that the compromised j.morris account established RemoteInteractive sessions, indicating that the attacker had successfully gained interactive remote access to the environment using valid credentials. This finding marks the transition from initial compromise to active post-compromise operations and provides the foundation for the reconnaissance, network discovery, and data collection activities examined in the subsequent findings.
+
+### Query
+
+   ```kql
+   DeviceLogonEvents
+| where DeviceName startswith "nh-"
+| where AccountName == "j.morris" 
+| where AccountDomain == "nimbus"
+| where ActionType == "LogonSuccess"
+| where isnotempty(RemoteIP)
+| where TimeGenerated between (datetime(2026-03-01) .. datetime(2026-03-30))
+| project TimeGenerated, AccountName, ActionType, LogonType, AccountDomain, RemoteIP
+```
+
+[!Second Query](
