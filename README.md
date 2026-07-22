@@ -266,3 +266,4 @@ DeviceLogonEvents
 | where TimeGenerated between (datetime(2026-03-01) .. datetime(2026-03-30))
 | project TimeGenerated, AccountName, ActionType, LogonType, AccountDomain, RemoteIP
 ```
+![Third Query](
