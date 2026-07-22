@@ -685,3 +685,79 @@ DeviceProcessEvents
 ![Query Eight](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag%208.png)
 
 ---
+
+## Finding 9 – Unauthorized Access to the Billing File Share
+
+### Hunt Lead
+
+"Reconnaissance is complete. The attacker now opens a specific business resource. Identify the network location that was accessed."
+
+### Objective
+
+Determine which network file share the compromised account accessed following reconnaissance and assess the significance of the targeted resource within the organization's environment.
+
+### Investigation
+
+After completing host discovery, network enumeration, and privilege validation, the investigation shifted to identifying the first organizational resource accessed by the compromised j.morris account.
+
+Review of the process activity and supporting evidence showed the attacker accessed the following network location:
+
+\\NH-FS-01\Billing\2026-03\Approved\
+
+This directory resides on the NH-FS-01 file server that the attacker previously identified during reconnaissance. Rather than exploring arbitrary shares, the attacker navigated directly to a business-critical billing directory, demonstrating a focused objective and suggesting that the earlier discovery activity successfully identified a valuable target.
+
+The naming convention of the directory indicates it contains approved billing records for March 2026, making it a likely repository for financial or operational documents that could be valuable for intelligence gathering or future data theft.
+
+### Evidence
+
+* Artifact	Value
+* Account	j.morris
+* File Server	NH-FS-01
+* Network Share	\\NH-FS-01\Billing\2026-03\Approved\
+* Activity	Access to Billing Department File Share
+
+### Analysis
+
+This finding represents a significant escalation in the attack lifecycle.
+
+Up to this point, the attacker had focused exclusively on understanding the environment by identifying systems, enumerating network resources, and validating account permissions. Accessing the Billing share marks the first observed interaction with business data and indicates that reconnaissance objectives had been achieved.
+
+The targeted nature of the access is noteworthy. Rather than browsing multiple shares or directories, the attacker accessed a specific billing repository on a server they had already identified as a high-value asset. This behavior reflects a methodical approach in which reconnaissance directly informed the selection of the next target.
+
+Because the compromised account belonged to a billing department user, access to this share may not have generated immediate security alerts. This highlights one of the challenges associated with attacks that leverage valid credentials: malicious activity can initially appear consistent with the permissions granted to the legitimate user. In this case, however, the access occurred immediately after a sequence of suspicious remote logons and reconnaissance commands, providing critical context that distinguishes it from routine business activity.
+
+### MITRE ATT&CK Mapping
+
+* Tactic	Technique	Rationale
+* Collection	T1005 – Data from Local System	The attacker began accessing organizational files located on an internal file server using the compromised account's existing permissions.
+
+### Risk Assessment
+
+* Severity: High
+
+Unauthorized access to departmental file shares significantly increases organizational risk because it exposes business records that may contain financial information, operational workflows, or other sensitive data. Although this finding alone does not demonstrate exfiltration, it confirms that the attacker progressed beyond reconnaissance and began interacting with valuable organizational resources.
+
+### Detection Opportunities
+
+Organizations can improve detection of similar activity by:
+
+Monitoring access to sensitive departmental shares following unusual authentication events.
+Correlating file share access with recent RemoteInteractive logons from unfamiliar source IP addresses.
+Alerting when users access high-value directories immediately after executing reconnaissance commands.
+Establishing behavioral baselines for access to financial and billing repositories and investigating deviations from normal user patterns.
+
+### Conclusion
+
+The investigation confirmed that the compromised j.morris account accessed the \\NH-FS-01\Billing\2026-03\Approved\ network share after completing a structured reconnaissance phase. This activity marks the transition from environmental discovery to direct interaction with business-critical data and demonstrates that the attacker had begun pursuing organizational information rather than simply mapping the environment. The sequence of events further reinforces the assessment that the intrusion was deliberate, interactive, and guided by the attacker's understanding of the enterprise.
+
+### Query 
+   ```kql
+DeviceProcessEvents
+| where DeviceName startswith "nh-"
+| where TimeGenerated between (datetime(2026-03-01) .. datetime(2026-03-30))
+| where AccountName == "j.morris"
+| where ProcessCommandLine contains "billing" and ProcessCommandLine contains "approved"
+| project TimeGenerated, AccountName, DeviceName, ActionType, ProcessCommandLine
+```
+
+![Query Nine]()
