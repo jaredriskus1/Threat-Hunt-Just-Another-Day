@@ -179,4 +179,4 @@ The investigation confirmed that the compromised j.morris account established Re
 | project TimeGenerated, AccountName, ActionType, LogonType, AccountDomain, RemoteIP
 ```
 
-[!Second Query](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag2.png)
+![Second Query](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag2.png)
