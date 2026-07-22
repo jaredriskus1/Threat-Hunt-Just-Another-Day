@@ -1444,3 +1444,89 @@ The investigation confirmed that the compromised j.morris account accessed emplo
 ![Query Seventeen](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag%2017.png)
 
 ---
+
+## Finding 18 – Access to Employee Contact Information
+
+### Hunt Lead
+
+"The attacker wasn't finished with Human Resources. Identify the next HR-related file that was accessed and evaluate how it contributes to the overall impact of the intrusion."
+
+### Objective
+
+Determine whether the attacker continued accessing Human Resources documentation after reviewing compensation records and assess the significance of accessing employee contact information.
+
+### Investigation
+
+Following the access to employee_salary_adjustments_FY2026.xlsx documented in Finding 17, the investigation continued by reviewing subsequent file activity associated with the compromised j.morris account.
+
+Analysis of the available telemetry identified access to the following file:
+
+* HR_Employee_Contacts_2026.csv
+
+* The filename indicates that the file contains Human Resources employee contact information for 2026. While the filename suggests the document relates to employee contact records, the source material does not describe its contents or identify the specific data fields contained within the file. Accordingly, the investigation is limited to confirming that the file was accessed.
+
+* This access occurred after the attacker had already reviewed multiple categories of financial and personnel documentation, demonstrating a continued effort to identify and access organizational information across Human Resources resources.
+
+### Evidence
+
+* Artifact	Value
+* Account	j.morris
+* Workstation	NH-WKS-HR-02
+* File Accessed	HR_Employee_Contacts_2026.csv
+* Category	Human Resources Documentation
+* Activity	Employee Contact Information Access
+
+### Analysis
+
+The access to HR_Employee_Contacts_2026.csv broadens the scope of the compromise by adding another category of personnel-related information to the attacker's observed activity.
+
+Throughout the investigation, the attacker consistently expanded from one category of organizational information to another:
+
+* Billing documentation
+* Billing workflow records
+* Payroll documentation
+* Human Resources records
+* Employee disciplinary information
+* Employee compensation records
+* Employee contact information
+
+This progression demonstrates a systematic approach to exploring available organizational resources using the permissions associated with the compromised account.
+
+Although employee contact information may not be as sensitive as payroll or disciplinary records, it can still represent valuable organizational information. However, the available evidence confirms only that the file was accessed. The investigation does not establish whether the information was copied, modified, or transmitted outside the environment.
+
+### MITRE ATT&CK Mapping
+
+* Tactic	Technique	Rationale
+* Collection	T1005 – Data from Local System	The attacker continued accessing organizational files using the permissions of the compromised account.
+
+### Risk Assessment
+
+* Severity: Medium–High
+
+Employee contact information can support additional malicious activity, including internal reconnaissance, targeted phishing, or social engineering. While the available evidence does not confirm that the data was exfiltrated, unauthorized access to personnel contact records expands the overall impact of the intrusion and demonstrates continued exploration of Human Resources resources.
+
+### Detection Opportunities
+
+Organizations can improve detection of similar activity by:
+
+* Monitoring access to employee directory and contact information repositories.
+* Correlating access to multiple HR document types within a single authenticated session.
+* Alerting when users outside Human Resources access employee contact databases.
+* Applying enhanced auditing to HR file shares containing personnel records and administrative documentation.
+
+### Conclusion
+
+The investigation confirmed that the compromised j.morris account accessed HR_Employee_Contacts_2026.csv while operating within the Human Resources environment. This activity demonstrates that the attacker continued expanding their access to personnel-related information after reviewing disciplinary and compensation records. Although the available evidence does not establish modification or exfiltration of the file, the observed behavior reinforces the assessment that the attacker systematically explored multiple categories of sensitive organizational data using the permissions associated with a compromised account.
+
+### Query 
+
+   ```kql
+DeviceProcessEvents
+| where DeviceName contains "nh-"
+| where AccountName == "j.morris"
+| where TimeGenerated between (datetime(2026-03-01) .. datetime(2026-03-30))
+| where ProcessCommandLine contains "payroll" and ProcessCommandLine contains "txt"
+| project TimeGenerated, AccountName, DeviceName, ActionType, ProcessCommandLine
+```
+
+![Query Eighteen]()
