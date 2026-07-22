@@ -1270,3 +1270,88 @@ DeviceProcessEvents
 ![Query Fifteen](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag%2015.png)
 
 ---
+
+## Finding 16 – Access to Employee Disciplinary Records
+
+### Hunt Lead
+
+"The move to the HR workstation wasn't incidental. Identify the personnel document the attacker accessed after authenticating to the system."
+
+### Objective
+
+Determine whether the attacker accessed sensitive Human Resources documentation after authenticating to NH-WKS-HR-02 and assess how this activity affected the overall scope and impact of the intrusion.
+
+### Investigation
+
+Following the successful authentication to NH-WKS-HR-02 documented in Finding 15, the investigation focused on identifying file access activity performed on the Human Resources workstation.
+
+Review of the available telemetry identified access to the following document:
+
+employee_disciplinary_actions_202603.pdf
+
+The filename indicates the document relates to employee disciplinary actions for March 2026. While the source material identifies the filename, it does not provide details regarding the document's contents or indicate whether it was viewed in full, modified, or copied. Accordingly, the assessment is limited to the confirmed access observed during the investigation.
+
+This activity occurred shortly after the attacker authenticated to the HR workstation, demonstrating that the lateral movement documented in the previous finding directly preceded access to sensitive personnel-related information.
+
+### Evidence
+
+* Artifact	Value
+* Account	j.morris
+* Workstation	NH-WKS-HR-02
+* File Accessed	employee_disciplinary_actions_202603.pdf
+* Category	Human Resources Documentation
+* Activity	Personnel Record Access
+
+### Analysis
+
+This finding represents a notable escalation in the intrusion.
+
+Earlier findings showed the attacker progressing from billing documentation to payroll records and general Human Resources materials. Accessing an employee disciplinary document demonstrates a continued focus on personnel-related information after successfully moving to an HR workstation.
+
+From an investigative perspective, the sequence of activity is particularly significant:
+
+* The attacker established remote access using valid credentials.
+* They conducted structured reconnaissance of the environment.
+* They accessed financial and payroll documentation.
+* They laterally moved to a workstation associated with Human Resources.
+* They immediately accessed a sensitive HR document.
+
+This progression suggests that the move to NH-WKS-HR-02 supported the attacker's objective of locating additional personnel-related information rather than representing opportunistic exploration.
+
+Although the evidence confirms access to the document, it does not establish that the file was altered, copied, or exfiltrated. The investigation therefore limits its conclusions to the observed file access.
+
+### MITRE ATT&CK Mapping
+
+* Tactic	Technique	Rationale
+* Collection	T1005 – Data from Local System	The attacker accessed sensitive organizational data available through the compromised account and subsequent lateral movement.
+
+### Risk Assessment
+
+* Severity: High
+
+Human Resources records often contain sensitive employee information that warrants heightened protection. Unauthorized access to personnel documentation increases organizational risk because it may expose confidential employment information and demonstrates that the attacker successfully reached resources outside the original scope of the compromised user's business function.
+
+### Detection Opportunities
+
+Organizations can improve detection by:
+
+* Monitoring access to confidential HR documents following authentication to HR-designated systems.
+* Correlating lateral movement events with immediate access to personnel records.
+* Alerting when accounts outside the HR department access sensitive employee documentation.
+* Applying enhanced auditing to confidential HR repositories and reviewing anomalous access patterns.
+
+### Conclusion
+
+The investigation confirmed that the compromised j.morris account accessed the Human Resources document employee_disciplinary_actions_202603.pdf after authenticating to NH-WKS-HR-02. This activity demonstrates that the attacker's lateral movement into the HR environment was followed by access to sensitive personnel information, expanding the scope of the intrusion beyond financial records. While the available evidence confirms unauthorized access to the document, it does not establish modification or exfiltration. Nevertheless, the observed sequence reinforces the assessment of a deliberate, hands-on intrusion that systematically targeted multiple categories of sensitive organizational data.
+
+### Query 
+
+   ```kql
+DeviceProcessEvents
+| where DeviceName contains "nh-fs-01"
+| where AccountName == "j.morris"
+| where TimeGenerated between (datetime(2026-03-01) .. datetime(2026-03-30))
+| where ProcessCommandLine contains "whoami"
+| project TimeGenerated, AccountName, DeviceName, ActionType, ProcessCommandLine
+```
+![Query Sixteen]()
