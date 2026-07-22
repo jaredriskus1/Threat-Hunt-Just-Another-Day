@@ -102,4 +102,8 @@ I think this is a strong foundation. Each of the remaining 19 findings can follo
 | project TimeGenerated, AccountName, ActionType, LogonType, RemoteIP, AccountDomain
 ```
 
-![First Query](
+![First Query](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag1.png)
+
+---
+
+## Flag 2 
