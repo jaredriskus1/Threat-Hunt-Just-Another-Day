@@ -1,4 +1,4 @@
-# Threat-Hunt-Just-Another-Day
+## Threat-Hunt-Just-Another-Day
 
 ![image](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/JustAnotherDay.png)
 
@@ -6,7 +6,7 @@
 
 **Date:** July 21, 2026
 
-## Platforms and Languages Leveraged
+### Platforms and Languages Leveraged
 
 **Platforms:**
 
@@ -20,7 +20,7 @@
 
 ---
 
-## Scenario 
+### Scenario 
 
 From: Hunt Lead // Cyber Range SOC
 To: Threat Hunt // On-Shift
@@ -52,7 +52,7 @@ Get hunting.
 
 ## Flag 1 — Identification of the Compromised Account
 
-## Hunt Lead
+### Hunt Lead
 
 "The review flagged one billing account behaving oddly. Name it. That's who you're following."
 
@@ -206,7 +206,7 @@ Review of the authentication logs identified the remote source IP address 193.36
 
 Because the successful remote sessions originated from an external address rather than the organization's internal infrastructure, the likelihood of legitimate employee activity was significantly reduced. Combined with the previously observed failed authentication attempts and subsequent interactive command execution, the evidence supports the conclusion that the attacker successfully authenticated from outside the corporate network using valid credentials.
 
-## Evidence
+### Evidence
 
 * Artifact	Value
 * Account	j.morris
@@ -215,7 +215,7 @@ Because the successful remote sessions originated from an external address rathe
 * Remote Source IP	193.36.225.245
 * Authentication	Successful Remote Logon
 
-## Analysis
+### Analysis
 
 The identification of an external source IP represents a critical milestone in the investigation because it establishes that the suspicious authentication activity originated from outside the organization's trusted environment.
 
@@ -254,3 +254,15 @@ Enrich authentication logs with IP reputation and geolocation data to provide ad
 ### Conclusion
 
 The investigation identified 193.36.225.245 as the source of the successful RemoteInteractive sessions associated with the compromised j.morris account. Based on the source material, the address was external to the organization's environment and was observed immediately before the attacker began reconnaissance activities. This finding strengthens the assessment that the activity originated from an unauthorized external actor using valid credentials rather than from routine internal user activity.
+
+### Query
+   ```kql
+DeviceLogonEvents
+| where DeviceName startswith "nh-"
+| where AccountName == "j.morris" 
+| where AccountDomain == "nimbus"
+| where ActionType == "LogonSuccess"
+| where isnotempty(RemoteIP)
+| where TimeGenerated between (datetime(2026-03-01) .. datetime(2026-03-30))
+| project TimeGenerated, AccountName, ActionType, LogonType, AccountDomain, RemoteIP
+```
