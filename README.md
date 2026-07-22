@@ -1105,4 +1105,7 @@ DeviceProcessEvents
 | where ProcessCommandLine contains "hr" and ProcessCommandLine contains "txt"
 | project TimeGenerated, AccountName, DeviceName, ActionType, ProcessCommandLine
 ```
-![Query Thirteen]()
+![Query Thirteen](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag%2013%20.png)
+
+---
+
