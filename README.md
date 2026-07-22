@@ -763,3 +763,89 @@ DeviceProcessEvents
 ![Query Nine](https://github.com/jaredriskus1/Threat-Hunt-Just-Another-Day/blob/main/Flag%209.png)
 
 ---
+
+## Finding 10 – Identification of the Initial Billing Document Accessed
+
+### Hunt Lead
+
+"The attacker has entered the Billing share. Determine the first billing document they accessed to understand what information became available after reconnaissance concluded."
+
+### Objective
+
+Identify the first business document accessed by the compromised j.morris account after entering the Billing department file share and determine its significance within the overall attack progression.
+
+### Investigation
+
+After confirming that the attacker accessed the \\NH-FS-01\Billing\2026-03\Approved\ network share in Finding 9, the investigation focused on determining which file was accessed first within the directory.
+
+Review of the available telemetry identified the following document:
+
+approved_pending_invoice_INV-773221_20260311.txt
+
+This file resided within the Billing department's approved invoice repository and represents the earliest observed interaction with business data following the attacker's reconnaissance activities.
+
+Unlike the discovery commands documented in previous findings, access to this file demonstrates that the attacker had moved beyond understanding the environment and had begun interacting with organizational records.
+
+### Evidence
+
+* Artifact	Value
+* Account	j.morris
+* File Server	NH-FS-01
+* Directory	\\NH-FS-01\Billing\2026-03\Approved\
+* File Accessed	approved_pending_invoice_INV-773221_20260311.txt
+* Activity	Initial Billing Document Access
+
+### Analysis
+
+This finding represents the first confirmed access to a business document during the intrusion.
+
+The filename indicates the document is associated with the organization's billing workflow and likely contains invoice approval information. While the investigation does not establish the document's contents, its location within the approved billing directory suggests that it forms part of the organization's financial operations. Accordingly, the file should be treated as a business-sensitive asset based on its context within the environment rather than assumptions about its specific contents.
+
+The timing of this access is equally significant. Before interacting with the document, the attacker had:
+
+* Established remote interactive access.
+* Identified the compromised user.
+* Confirmed the workstation.
+* Enumerated network resources.
+* Identified the file server.
+* Enumerated the Active Directory domain.
+* Validated account permissions.
+
+Only after completing these preparatory steps did the attacker begin accessing organizational documents. This deliberate sequence demonstrates a disciplined operational workflow and supports the assessment that the attacker was intentionally pursuing valuable business information rather than randomly browsing the environment.
+
+### MITRE ATT&CK Mapping
+
+* Tactic	Technique	Rationale
+* Collection	T1005 – Data from Local System	The attacker accessed an organizational document available through the compromised account's authorized file share access.
+
+### Risk Assessment
+
+* Severity: High
+
+Access to financial documentation represents a meaningful escalation in the intrusion. Even without evidence of modification or exfiltration, unauthorized viewing of business records can expose operational processes, financial data, and information useful for future attacks. This finding confirms that the attacker had progressed from reconnaissance into the collection phase of the attack lifecycle.
+
+### Detection Opportunities
+
+The following controls could improve visibility into similar activity:
+
+Monitor access to billing and finance repositories immediately following unusual authentication events.
+Alert when users access sensitive financial documents after executing discovery commands such as net.exe, whoami, or hostname.
+Correlate file access events with recent RemoteInteractive sessions originating from unfamiliar source IP addresses.
+Establish behavioral baselines for access to financial records and investigate deviations from a user's normal activity.
+
+### Conclusion
+
+The investigation determined that the first business document accessed by the compromised j.morris account was approved_pending_invoice_INV-773221_20260311.txt. This finding marks the attacker's first confirmed interaction with organizational business data following a structured reconnaissance phase. The observed sequence demonstrates a methodical progression from environmental discovery to targeted access of financial records, further supporting the assessment of a deliberate, hands-on-keyboard intrusion conducted using valid credentials.
+
+### Query
+
+   ```kql
+DeviceProcessEvents
+| where DeviceName startswith "nh-"
+| where TimeGenerated between (datetime(2026-03-01) .. datetime(2026-03-30))
+| where AccountName == "j.morris"
+| where ProcessCommandLine contains "billing" and ProcessCommandLine contains "approved"
+| project TimeGenerated, AccountName, DeviceName, ActionType, ProcessCommandLine
+```
+
+![Query Ten]()
